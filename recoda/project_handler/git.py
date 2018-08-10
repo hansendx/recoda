@@ -36,8 +36,11 @@ class Handler(object):
 
         self._project_dict = self._create_project_dict()
 
-    def project_list(self):
-        """ Generator to output project directories. """
+    def project_list(self) -> str:
+        """ Generator to output project directories.
+        
+        :returns: Generator to iterate over project directories.
+        """
         for _repo in self._project_list:
             yield _repo.working_dir
 
