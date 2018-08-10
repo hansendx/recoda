@@ -6,6 +6,7 @@ Interaction with the repositories, is limited to the functionality needed to ana
 research software projects contained inside.
 """
 
+from copy import deepcopy
 import os
 import glob
 
@@ -35,6 +36,11 @@ class Handler(object):
 
         self._project_dict = self._create_project_dict()
 
+    def project_list(self):
+        """ Generator to output project directories. """
+        for _repo in self._project_list:
+            yield _repo.working_dir
+
     def get_identifier(self, project: git.repo.base.Repo) -> str:
         """ Return an identifier for a repository. """
         return self._project_dict[project.working_dir]['id']
@@ -46,14 +52,14 @@ class Handler(object):
                   Values are the git.Repo objects
                   of the repositories located at the path.
         """
-        return self._project_dict
+        return deepcopy(self._project_dict)
 
     def get_project_list(self) -> list:
         """ Return the instance variable containing all projects.
         
         :returns: A list of git.Repo objects.
         """
-        return self._project_list
+        return self._project_list.copy()
         
     @staticmethod
     def _create_identifier(_repo: git.repo.base.Repo) -> str:
