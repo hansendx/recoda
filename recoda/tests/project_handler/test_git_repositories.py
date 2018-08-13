@@ -27,10 +27,10 @@ class TestRepositoryHandler(unittest.TestCase):
 
         self.handler = git.Handler(base_folder=self.repo_base_folder)
 
-    def test_get_repository_list(self):
+    def test_get_repository_objects(self):
         """ Test the function, returning a list of all git repositories in a directory subtree."""
         _expected_list = self.repositories
-        _test_list = self.handler.get_project_list()
+        _test_list = [_object for _object in self.handler.get_project_objects()]
 
         self.assertEqual(len(_expected_list), len(_test_list))
 
@@ -44,7 +44,7 @@ class TestRepositoryHandler(unittest.TestCase):
             base_folder=self.repo_base_folder
         )
 
-        _test_list = self.handler.get_project_list()
+        _test_list = [_object for _object in self.handler.get_project_objects()]
         _expected_list = self.repositories
     
         # Test the correctness of the repository list.

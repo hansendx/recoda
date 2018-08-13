@@ -32,17 +32,23 @@ class Handler(object):
 
         self._base_folder = base_folder
 
-        self._project_list = self._create_project_list()
-
         self._project_dict = self._create_project_dict()
 
-    def project_list(self) -> str:
+    def get_project_directories(self) -> str:
         """ Generator to output project directories.
         
         :returns: Generator to iterate over project directories.
         """
-        for _repo in self._project_list:
-            yield _repo.working_dir
+        for _project in self._project_dict:
+            yield _project
+    
+    def get_project_objects(self) -> git.repo.base.Repo:
+        """ Generator to output project Repo objects.
+        
+        :returns: Generator to iterate over project Repo objects.
+        """
+        for _project in self._project_dict:
+            yield self._project_dict[_project]['project']
 
     def get_identifier(self, project: git.repo.base.Repo) -> str:
         """ Return an identifier for a repository. """
@@ -57,13 +63,6 @@ class Handler(object):
         """
         return deepcopy(self._project_dict)
 
-    def get_project_list(self) -> list:
-        """ Return the instance variable containing all projects.
-        
-        :returns: A list of git.Repo objects.
-        """
-        return self._project_list.copy()
-        
     @staticmethod
     def _create_identifier(_repo: git.repo.base.Repo) -> str:
         """ builds an identifier string for a repo. """
@@ -72,23 +71,23 @@ class Handler(object):
         return _repo.working_dir
 
     def _create_project_dict(self) -> dict:
+        """ Return a dictionary of all git repositories in a directory subtree.
 
-        _dict = {}
-        for _repo in self._project_list:
-            _dict[_repo.working_dir] = {
-                'project': _repo,
-                'id': self._create_identifier(_repo)
-            }
-        return _dict
-
-    def _create_project_list(self) -> list:
-        """ Return a list of all git repositories in a directory subtree.
-
-        :returns:           List of git.Repo objects. Determined by searching
-                            through a directory tree for git repositories.
+        :returns:           Dictionary with the project location as keys,
+                            and dictionary as value. The nested 
+                            Dictionary contains the project as
+                            git.repo.base.Repo object and an id.
         """
+
         _dot_git_folder = glob.glob('%s/%s' % (self._base_folder, '**/.git'))
         _git_folders =  [os.path.dirname(path) for path in _dot_git_folder]
         _repositories = [git.Repo.init(folder) for folder in _git_folders]
 
-        return _repositories
+        _projects = {}
+        for _repo in _repositories:
+            _projects[_repo.working_dir] = {
+                'project': _repo,
+                'id': self._create_identifier(_repo)
+            }
+        return _projects
+
