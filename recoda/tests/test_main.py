@@ -1,12 +1,20 @@
-""" Test the main module of the ReCodA. """
+""" Test the main module of ReCodA. """
 
 import argparse
 import logging
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
+import pandas
+
 import recoda.__main__ as main
+from recoda.project_handler import git
+from recoda.tests.helpers import (
+    create_test_repositories,
+    remove_test_repositories
+)
 
 
 class TestArgumentParser(unittest.TestCase):
@@ -18,7 +26,6 @@ class TestArgumentParser(unittest.TestCase):
         self.base_dir = {'long': '--base-dir', 'short': '-b'}
         self.type = {'long': '--project-type', 'short': '-t'}
         self.fake_path = '/some/dir'
-
 
     def test_base_dir_argument(self):
         """ Can we pass --base-dir -b Argument and get back the value? """
@@ -69,3 +76,39 @@ class TestArgumentParser(unittest.TestCase):
         with patch.object(sys, 'argv', _arguments):
             with self.assertRaises(SystemExit):
                 _argparser = main.parse_arguments()
+
+class TestMeasureProjects(unittest.TestCase):
+    """ We make sure the measure_projects function returns an expected pandas dataframe.
+
+    
+    """
+
+    def setUp(self):
+        """ Set up mock projects. """
+        # Working in a tmp folder so we dont have juggle to much with paths
+        # and dont risk cluttering the package directory.
+        self.base_folder = tempfile.mkdtemp() 
+        self.projects = create_test_repositories(self.base_folder)
+
+        self.handler = git.Handler(self.base_folder)
+
+    def test_measure_projects(self):
+        """ The dataframe should have a column for the ids of the projects.
+        If it is actually filled with measurements is to be measured elsewhere. #TODO
+        """
+        _test_object = main.MeasureProjects(project_handler=self.handler, language='python')
+        _test_output = _test_object.measure()
+        # Do we get a pandas dataframe?
+        self.assertIsInstance(_test_output, pandas.DataFrame)
+        # Do we have an id column?
+        self.assertIn('id', list(_test_output.columns.values))
+        # Doe we have all project ids?
+        _id_list = _test_output['id'].tolist()
+        for _project in self.handler.get_project_objects():
+            self.assertIn(
+                self.handler.get_identifier(_project),
+                _id_list
+            )
+
+    def tearDown(self):
+        remove_test_repositories(self.base_folder)
