@@ -63,10 +63,14 @@ class MeasureProjects(object):
         # This will just give back the id.
         self._metrics_dispatcher = {'id': str}
         for _metric, _function in self._METRICS_DISPATCHER.items():
+            try:
             self._metrics_dispatcher[_metric] = getattr(
                 self.metrics,
                 _function
                 )
+            except AttributeError:
+                #TODO LOG that the language lacks the requested metric.
+                pass
 
         _column_list = [column for column in self._metrics_dispatcher]
         self._dataframe = pandas.DataFrame(columns=_column_list)
