@@ -60,14 +60,17 @@ class MeasureProjects(object):
 
         # We set ids "measure function" to string, so we can
         # send all fields through the function dispatcher.
-        # This will just give back the id.
+        # This will just give back us back the id for the id field.
         self._metrics_dispatcher = {'id': str}
+
+        # We build and gather all functions in a dispatcher list
+        # to measure them in the measure method.
         for _metric, _function in self._METRICS_DISPATCHER.items():
             try:
-            self._metrics_dispatcher[_metric] = getattr(
-                self.metrics,
-                _function
-                )
+                self._metrics_dispatcher[_metric] = getattr(
+                    self.metrics,
+                    _function
+                    )
             except AttributeError:
                 #TODO LOG that the language lacks the requested metric.
                 pass
@@ -76,7 +79,15 @@ class MeasureProjects(object):
         self._dataframe = pandas.DataFrame(columns=_column_list)
 
 
-    def measure(self):
+    def measure(self) -> pandas.DataFrame:
+        """ Go through all Projects in the instances handler and measure them.
+
+        Does not go through the measurement process if already called once.
+
+        :returns: The results from a previous run of the method or,
+                  if no previous results exist, the results calculated
+                  during this run.
+        """
 
         if not self._dataframe.empty:
             return self._dataframe
@@ -87,8 +98,6 @@ class MeasureProjects(object):
                 _row[_column] = _function(_project_directory)
             
             self._dataframe = self._dataframe.append(_row, ignore_index=True)
-
-
 
         return self._dataframe
 
