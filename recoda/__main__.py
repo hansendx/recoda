@@ -33,8 +33,14 @@ class MeasureProjects(object):
     """ Goes through all projects and returns their measurements in a DataFrame
 
     :returns:   A pandas dataframe with all Projects accessible through the handler
-                and a column for every measure.
+                and a column for every metric measured.
     """
+
+    # We want to dispatch functions from different packages,
+    # depending on the language of scripts, that is supposed to be 
+    # measured. For now the easiest way was to split the dispatcher
+    # dict into one for the functions and one for the packages
+    # containing language specific functions.
     _METRICS_DISPATCHER = {
         'packageable': "packageable"
     }
