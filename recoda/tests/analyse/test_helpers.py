@@ -57,9 +57,16 @@ class TestSearchFilename(unittest.TestCase):
             base_folder=self._base_folder,
             file_name=self._file_name
         )
+        # We can't test for equality directly since we do not know
+        # the ordering of the resulting list.
+        for _file in _file_test_result:
+            self.assertIn(
+                _file,
+                self._files
+            )
         self.assertEqual(
-            self._files,
-            _file_test_result
+            len(_file_test_result),
+            len(self._files)
         )
 
         # Test file glob
@@ -67,13 +74,17 @@ class TestSearchFilename(unittest.TestCase):
             base_folder=self._base_folder,
             file_name=self._file_glob
         )
+        # We can't test for equality directly since we do not know
+        # the ordering of the resulting list.
+        for _file in _glob_test_result:
+            self.assertIn(
+                _file,
+                self._files
+            )
         self.assertEqual(
-            self._files,
-            _glob_test_result
+            len(_glob_test_result),
+            len(self._files)
         )
-
-
-
 
     def tearDown(self):
         """ Remove the mock base folder. """
