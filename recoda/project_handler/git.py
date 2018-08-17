@@ -79,7 +79,12 @@ class Handler(object):
                             git.repo.base.Repo object and an id.
         """
 
-        _dot_git_folder = glob.glob('%s/%s' % (self._base_folder, '**/.git'))
+        _dot_git_folder = glob.glob('{base}/{file_glob}'.format(
+            base=self._base_folder,
+            file_glob='**/.git'
+            ),
+            recursive=True 
+        )
         _git_folders =  [os.path.dirname(path) for path in _dot_git_folder]
         _repositories = [git.Repo.init(folder) for folder in _git_folders]
 
