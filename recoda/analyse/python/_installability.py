@@ -28,7 +28,6 @@ def packageability(project_path: str) -> int:
             pyroma.run('directory', project_path)
         )
     return numpy.mean(_score_list)
-    
 
 def _get_setup_location(path: str) -> str:
     """ Returns a list of paths to setup.py files in a directory.

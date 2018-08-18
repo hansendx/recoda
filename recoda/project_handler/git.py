@@ -14,8 +14,7 @@ import git
 
 class Handler(object):
     """ Keep a list of git repositories and offer functions to analyse them."""
-    
-    
+
     def __init__(self, base_folder: str):
         """ Initialise repository_handler.
 
@@ -26,7 +25,7 @@ class Handler(object):
                                     in _repository_list as values and the path
                                     to the directory of the repo as corresponding key.
 
-        :param base_folder:         The root folder supposed to contain all 
+        :param base_folder:         The root folder supposed to contain all
                                     git repositories to work with.
         """
 
@@ -36,15 +35,15 @@ class Handler(object):
 
     def get_project_directories(self) -> str:
         """ Generator to output project directories.
-        
+
         :returns: Generator to iterate over project directories.
         """
         for _project in self._project_dict:
             yield _project
-    
+
     def get_project_objects(self) -> git.repo.base.Repo:
         """ Generator to output project Repo objects.
-        
+
         :returns: Generator to iterate over project Repo objects.
         """
         for _project in self._project_dict:
@@ -56,7 +55,7 @@ class Handler(object):
 
     def get_project_dict(self) -> dict:
         """ Return the instance variable containing all repositories and their paths.
-        
+
         :returns: A dict with paths as keys.
                   Values are the git.Repo objects
                   of the repositories located at the path.
@@ -74,18 +73,19 @@ class Handler(object):
         """ Return a dictionary of all git repositories in a directory subtree.
 
         :returns:           Dictionary with the project location as keys,
-                            and dictionary as value. The nested 
+                            and dictionary as value. The nested
                             Dictionary contains the project as
                             git.repo.base.Repo object and an id.
         """
 
-        _dot_git_folder = glob.glob('{base}/{file_glob}'.format(
-            base=self._base_folder,
-            file_glob='**/.git'
+        _dot_git_folder = glob.glob(
+            '{base}/{file_glob}'.format(
+                base=self._base_folder,
+                file_glob='**/.git'
             ),
-            recursive=True 
+            recursive=True
         )
-        _git_folders =  [os.path.dirname(path) for path in _dot_git_folder]
+        _git_folders = [os.path.dirname(path) for path in _dot_git_folder]
         _repositories = [git.Repo.init(folder) for folder in _git_folders]
 
         _projects = {}
@@ -95,4 +95,3 @@ class Handler(object):
                 'id': self._create_identifier(_repo)
             }
         return _projects
-

@@ -1,7 +1,5 @@
 """ Test the main module of ReCodA. """
 
-import argparse
-import logging
 import sys
 import tempfile
 import unittest
@@ -41,7 +39,7 @@ class TestArgumentParser(unittest.TestCase):
     def test_base_dir_mandatory(self):
         """ We make sure that --base-dir is mandatory.
 
-        We cannot gather project folder if we do not know where to start. 
+        We cannot gather project folder if we do not know where to start.
         """
         # argparse will try to access argv[0] so we need to supply an argv
         # of length > 0 to avoid an IndexError.
@@ -56,11 +54,11 @@ class TestArgumentParser(unittest.TestCase):
         _arguments_base = [self.name, self.base_dir['short'], self.fake_path]
 
         # directory should be the default, since directories are probable to exist
-        # in the base directory. 
+        # in the base directory.
         with patch.object(sys, 'argv', _arguments_base):
             _argparser = main.parse_arguments()
             self.assertEqual(_argparser.project_type, _types['dir'])
-        
+
         for _type in _types:
             _arguments = _arguments_base.copy()
             _arguments.extend(['-t', _types[_type]])
@@ -78,16 +76,13 @@ class TestArgumentParser(unittest.TestCase):
                 _argparser = main.parse_arguments()
 
 class TestMeasureProjects(unittest.TestCase):
-    """ We make sure the measure_projects function returns an expected pandas dataframe.
-
-    
-    """
+    """ We make sure the measure_projects function returns an expected pandas dataframe. """
 
     def setUp(self):
         """ Set up mock projects. """
         # Working in a tmp folder so we dont have juggle to much with paths
         # and dont risk cluttering the package directory.
-        self.base_folder = tempfile.mkdtemp() 
+        self.base_folder = tempfile.mkdtemp()
         self.projects = create_test_repositories(self.base_folder)
 
         self.handler = git.Handler(self.base_folder)
@@ -96,7 +91,7 @@ class TestMeasureProjects(unittest.TestCase):
         """ The dataframe should have a column for the ids of the projects.
         If it is actually filled with measurements is to be measured elsewhere. #TODO
         """
-        _test_object = main.MeasureProjects(project_handler=self.handler, language='python')
+        _test_object = main.MeasureProjects(project_measure_handler=self.handler, language='python')
         _test_output = _test_object.measure()
         # Do we get a pandas dataframe?
         self.assertIsInstance(_test_output, pandas.DataFrame)
