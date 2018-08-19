@@ -2,7 +2,11 @@
 
 import glob
 
-def search_filename(base_folder: str, file_name: str) -> dict:
+def search_filename(
+        base_folder: str,
+        file_name: str,
+        recursive_flag: bool = True
+) -> dict:
     """ Return a list of paths to files searched and found.
 
 
@@ -16,6 +20,6 @@ def search_filename(base_folder: str, file_name: str) -> dict:
         file=file_name
     )
 
-    _findings = glob.glob(_recursive_glob, recursive=True)
+    _findings = glob.glob(_recursive_glob, recursive=recursive_flag)
 
     return _findings
