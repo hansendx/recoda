@@ -15,11 +15,19 @@ def search_filename(
     :returns:           A List with full pathes to files matching the file_name.
     """
 
-    _recursive_glob = '{base}/**/{file}'.format(
-        base=base_folder,
-        file=file_name
-    )
+    if recursive_flag:
+        _recursive_glob = '{base}/**/{file}'.format(
+            base=base_folder,
+            file=file_name
+        )
 
-    _findings = glob.glob(_recursive_glob, recursive=recursive_flag)
+        _findings = glob.glob(_recursive_glob, recursive=recursive_flag)
+    else:
+        _glob = '{base}/{file}'.format(
+            base=base_folder,
+            file=file_name
+        )
+        _findings = glob.glob(_glob)
+
 
     return _findings
