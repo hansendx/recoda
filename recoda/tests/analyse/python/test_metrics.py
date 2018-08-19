@@ -11,7 +11,7 @@ from recoda.analyse.python.metrics import (
     packageability
 )
 
-
+# Tests functions in the _installability module. 
 class TestPackageable(unittest.TestCase):
     """ Test the function measuring the packageability. """
 
@@ -21,8 +21,7 @@ class TestPackageable(unittest.TestCase):
         'mock_setup_py')
 
     def setUp(self):
-        """ Create two setup scripts to measure. """
-        # TODO This should be possible to be more elegant.
+        """ Create two mock packages with setup scripts to measure. """
         _tmp_base_folder = tempfile.mkdtemp()
 
         _scored_setup_dict = {}
