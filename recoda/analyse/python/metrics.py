@@ -2,7 +2,8 @@
 """
 
 from recoda.analyse.python import (
-    _installability
+    _installability,
+    _learnability
 )
 
 # pylint: disable-msg=c0103
@@ -11,4 +12,9 @@ from recoda.analyse.python import (
 # not want it to be too long and unreadable. Wrapping the private module
 # functions into a barebones would just lead to a lot more unnecessary code.
 
+# Installability related metrics.
 packageability = _installability.packageability
+
+# Learnability related metrics.
+
+project_readme_size = _learnability.project_readme_size
