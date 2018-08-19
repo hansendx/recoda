@@ -12,7 +12,7 @@ setup(
         'recoda.project_handler',
         'recoda.tests'
     ],
-    package_data={'recoda.tests': ['data/mock_setup_py/*']} ,
+    package_data={'recoda.tests': ['data/mock_setup_py/*', 'data/mock_docs/*']} ,
     license='3-clause BSD',
     url='https://scm.cms.hu-berlin.de/hansendx/ReCodA',
     description=(
