@@ -1,6 +1,5 @@
-""" Setup script for the SingularityAutobuild Package."""
-import os
 from setuptools import setup, find_packages
+import glob
 
 setup(
     name='ReCodA',
@@ -13,22 +12,19 @@ setup(
         'recoda.project_handler',
         'recoda.tests'
     ],
-    package_data={'recoda.tests': ['data/mock_setup_py/*']} ,
     license='3-clause BSD',
     url='https://scm.cms.hu-berlin.de/hansendx/ReCodA',
     description=(
         'Statically analyse a collection of software projects.'
         'Analysis is based on a quality model focused on research software.'
     ),
-    long_description=open('README.rst').read(),
+    long_description="I am to short.",
     install_requires=[
         # Needed to work with the repositories containing the software projects.
         "GitPython"
     ],
     keywords= 'science research engineering static analysis',
     classifiers = [
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6'
-    ],
-    zip_safe=True
+        'Programming Language :: Python :: 3'
+    ]
 )
