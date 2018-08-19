@@ -1,6 +1,5 @@
 """ Setup script for the SingularityAutobuild Package."""
-import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='ReCodA',
