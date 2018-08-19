@@ -6,6 +6,7 @@ import tempfile
 import pkg_resources
 import glob
 import re
+from shutil import rmtree
 
 from recoda.analyse.python.metrics import (
     packageability
@@ -41,6 +42,7 @@ class TestPackageable(unittest.TestCase):
 
         pkg_resources.cleanup_resources()
 
+        self._tmp_base_folder = _tmp_base_folder
         self._scored_setup_dict = _scored_setup_dict
 
     def test_scoring(self):
@@ -48,3 +50,15 @@ class TestPackageable(unittest.TestCase):
         for _score, _folder in self._scored_setup_dict.items():
             _test_score = packageability(_folder)
             self.assertEqual(int(_score), _test_score)
+            _test_score = packageability(_folder)
+            self.assertEqual(int(_score), _test_score)
+
+    def tearDown(self):
+        """ Clean up. """
+        rmtree(self._tmp_base_folder)
+        
+
+class TestLearnability(unittest.TestCase):
+    """ Test the functions measuring Learnability of software projects. """
+
+    setUp
