@@ -17,6 +17,14 @@ def parse_arguments() -> argparse.Namespace:
         description="""Measures quality attributes of software projects."""
     )
     _parser.add_argument(
+        '-l',
+        '--language',
+        type=str,
+        help="The Programming language of the Projects.",
+        required=True,
+        choices=['python', 'r'],
+    ),
+    _parser.add_argument(
         '-b',
         '--base-dir',
         type=str,
@@ -31,7 +39,16 @@ def parse_arguments() -> argparse.Namespace:
         directory will cause the handler to treat every folder in the base dir as project.""",
         required=False,
         choices=['git', 'directory'],
-        default='directory')
+        default='directory'
+    )
+    _parser.add_argument(
+        '-f',
+        '--file-output',
+        type=str,
+        help="""Full Path to a file in wich the results are going to be written.
+        Existing files will be overwritten.""",
+        required=False
+    )
     return _parser.parse_args()
 
 class MeasureProjects(object):

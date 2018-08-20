@@ -23,18 +23,34 @@ class TestArgumentParser(unittest.TestCase):
         self.name = main.__name__
         self.base_dir = {'long': '--base-dir', 'short': '-b'}
         self.type = {'long': '--project-type', 'short': '-t'}
-        self.fake_path = '/some/dir'
+        self.language = {'long': '--language', 'short': '-l'}
+        self.langauge_param = 'python'
+        self.fake_path_param = '/some/dir'
 
     def test_base_dir_argument(self):
         """ Can we pass --base-dir -b Argument and get back the value? """
-        _arguments_long = [self.name, self.base_dir['long'], self.fake_path]
-        _arguments_short = [self.name, self.base_dir['short'], self.fake_path]
+        _arguments_long = [
+            self.name,
+            self.base_dir['long'],
+            self.fake_path_param,
+            self.language['long'],
+            self.langauge_param
+        ]
+        _arguments_short = [
+            self.name,
+            self.base_dir['short'],
+            self.fake_path_param,
+            self.language['short'],
+            self.langauge_param
+        ]
         with patch.object(sys, 'argv', _arguments_long):
             _argparser = main.parse_arguments()
-            self.assertEqual(_argparser.base_dir, self.fake_path)
+            self.assertEqual(_argparser.base_dir, self.fake_path_param)
+            self.assertEqual(_argparser.language, self.langauge_param)
         with patch.object(sys, 'argv', _arguments_short):
             _argparser = main.parse_arguments()
-            self.assertEqual(_argparser.base_dir, self.fake_path)
+            self.assertEqual(_argparser.base_dir, self.fake_path_param)
+            self.assertEqual(_argparser.language, self.langauge_param)
 
     def test_base_dir_mandatory(self):
         """ We make sure that --base-dir is mandatory.
@@ -51,7 +67,13 @@ class TestArgumentParser(unittest.TestCase):
         """ Can we pass a project type switch -t --project-type? """
         # Lets us parse through the viable options with minimal redundancy.
         _types = {'git': 'git', 'dir': 'directory'}
-        _arguments_base = [self.name, self.base_dir['short'], self.fake_path]
+        _arguments_base = [
+            self.name,
+            self.base_dir['short'],
+            self.fake_path_param,
+            self.language['short'],
+            self.langauge_param
+        ]
 
         # directory should be the default, since directories are probable to exist
         # in the base directory.
