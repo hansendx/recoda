@@ -122,3 +122,13 @@ class MeasureProjects(object):
             self._dataframe = self._dataframe.append(_row, ignore_index=True)
 
         return self._dataframe
+
+if __name__ == '__main__':
+    _arguments = parse_arguments()
+    if _arguments.project_type == 'git':
+        _handler = project_handler.git.Handler(_arguments.base_dir)
+
+    _measurements = MeasureProjects(_handler, _arguments.language)
+    _dataframe = pandas.DataFrame()
+    _dataframe = _measurements.measure()
+    _dataframe.to_csv(path_or_buf=_arguments.file_output)
