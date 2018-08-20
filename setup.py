@@ -22,7 +22,13 @@ setup(
     long_description=open('README.rst').read(),
     install_requires=[
         # Needed to work with the repositories containing the software projects.
-        "GitPython"
+        "GitPython==2.0.4",
+        # For handling the measurement data.
+        "pandas==0.23.4",
+        # For measuring the packageability.
+        "pyroma==2.4",
+        # Calculates readability metrics.
+        "textstat==0.4.1"
     ],
     keywords= 'science research engineering static analysis',
     classifiers = [
