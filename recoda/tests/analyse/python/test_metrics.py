@@ -74,7 +74,7 @@ class TestLearnability(unittest.TestCase):
         # We might have __init__.py and __pycache__ here.
         # This glob excludes those.
         for _file in glob.glob(self._MOCK_DOCS_DIR+"/*[0-9]_[a-z]*"):
-            _measure = re.match(r'^\d+', os.path.basename(_file))[0]
+            _measure = re.sub(r'^(\d+)_.*', r'\1', os.path.basename(_file))
             _measured_attribute = re.sub(r'^\d+_(\w+)$', r'\1', os.path.basename(_file))
 
             _mock_project_folder = "{tmp}/{measure}_{attribute}".format(
