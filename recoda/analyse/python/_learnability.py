@@ -8,15 +8,14 @@ from recoda.analyse.helpers import (
 
 def project_readme_size(project_path: str) -> int:
     """ Searches for standard doc files and measures their size. """
-    # TODO Ignore case?
-    _doc_files_suffixes = ['md', 'rst']
+    _doc_files_suffixes = ['[Mm][Dd]', '[Rr][Ss][Tt], ']
     _doc_files = list()
 
     for _suffix in _doc_files_suffixes:
         _doc_files.extend(
             search_filename(
                 base_folder=project_path,
-                file_name="README."+_suffix,
+                file_name="[Rr][Ee][Aa][Dd][Mm][Ee]."+_suffix,
                 recursive_flag=False
             )
         )
@@ -25,7 +24,9 @@ def project_readme_size(project_path: str) -> int:
         return 0
 
     if len(_doc_files) > 1:
-        _doc_file = [_path for _path in _doc_files if '.md' in _path][0]
+        _doc_file = [_path for _path in _doc_files if '.md' in _path.lower()][0]
+        if not _doc_file:
+            _doc_file = [_path for _path in _doc_files if '.rst' in _path.lower()][0]
     elif len(_doc_files) == 1:
         _doc_file = _doc_files[0]
 
