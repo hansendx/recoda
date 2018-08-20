@@ -6,6 +6,7 @@ import argparse
 import pandas
 import recoda.analyse.python.metrics
 import recoda.analyse.r.metrics
+from recoda import project_handler
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -56,7 +57,7 @@ class MeasureProjects(object):
 
     def __init__(
             self,
-            project_measure_handler: Union[project_measure_handler.git.Handler],
+            project_measure_handler: Union[project_handler.git.Handler],
             language: str
         ):
         self.project_handler = project_measure_handler
