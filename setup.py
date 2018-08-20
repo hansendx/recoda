@@ -13,7 +13,7 @@ setup(
         'recoda.tests'
     ],
     package_data={'recoda.tests': ['data/mock_setup_py/*', 'data/mock_docs/*']} ,
-    license='3-clause BSD',
+    license='MIT License',
     url='https://scm.cms.hu-berlin.de/hansendx/ReCodA',
     description=(
         'Statically analyse a collection of software projects.'
@@ -33,7 +33,8 @@ setup(
     keywords= 'science research engineering static analysis',
     classifiers = [
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'License :: OSI Approved :: MIT License'
     ],
     zip_safe=True
 )
