@@ -12,7 +12,7 @@ import glob
 
 import git
 
-class Handler(object):
+class Handler():
     """ Keep a list of git repositories and offer functions to analyse them."""
 
     def __init__(self, base_folder: str):

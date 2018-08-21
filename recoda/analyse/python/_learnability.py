@@ -45,7 +45,7 @@ def _get_main_readme(project_path: str) -> str:
             )
         )
 
-    if len(_doc_files) == 0:
+    if not _doc_files:
         return ""
 
     if len(_doc_files) > 1:

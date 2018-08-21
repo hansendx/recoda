@@ -23,7 +23,7 @@ def parse_arguments() -> argparse.Namespace:
         help="The Programming language of the Projects.",
         required=True,
         choices=['python', 'r'],
-    ),
+    )
     _parser.add_argument(
         '-b',
         '--base-dir',
@@ -51,7 +51,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     return _parser.parse_args()
 
-class MeasureProjects(object):
+class MeasureProjects():
     """ Goes through all projects and returns their measurements in a DataFrame
 
     :returns:   A pandas dataframe with all Projects accessible through the handler
@@ -122,6 +122,7 @@ class MeasureProjects(object):
             self._dataframe = self._dataframe.append(_row, ignore_index=True)
 
         return self._dataframe
+
 
 if __name__ == '__main__':
     _arguments = parse_arguments()
