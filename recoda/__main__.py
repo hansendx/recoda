@@ -74,7 +74,7 @@ class MeasureProjects():
 
     def __init__(
             self,
-            project_measure_handler: Union[recoda.project_handler.git],
+            project_measure_handler,
             language: str
         ):
         self.project_handler = project_measure_handler
