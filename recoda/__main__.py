@@ -6,7 +6,7 @@ import argparse
 import pandas
 import recoda.analyse.python.metrics
 import recoda.analyse.r.metrics
-from recoda import project_handler
+import recoda.project_handler.git
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -74,7 +74,7 @@ class MeasureProjects():
 
     def __init__(
             self,
-            project_measure_handler: Union[project_handler.git.Handler],
+            project_measure_handler: Union[recoda.project_handler.git],
             language: str
         ):
         self.project_handler = project_measure_handler
@@ -127,7 +127,7 @@ class MeasureProjects():
 if __name__ == '__main__':
     _arguments = parse_arguments()
     if _arguments.project_type == 'git':
-        _handler = project_handler.git.Handler(_arguments.base_dir)
+        _handler = recoda.project_handler.git.Handler(_arguments.base_dir)
 
     _measurements = MeasureProjects(_handler, _arguments.language)
     _dataframe = pandas.DataFrame()
