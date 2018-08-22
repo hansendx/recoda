@@ -18,3 +18,5 @@ packageability = _installability.packageability
 # Learnability related metrics.
 
 project_readme_size = _learnability.project_readme_size
+
+flesch_reading_ease = _learnability.flesch_reading_ease
