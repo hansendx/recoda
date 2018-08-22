@@ -64,7 +64,9 @@ class MeasureProjects():
     # dict into one for the functions and one for the packages
     # containing language specific functions.
     _METRICS_DISPATCHER = {
-        'packageable': "packageable"
+        'packageable': "packageable",
+        'flesh_reading_ease': "flesh_reading_ease",
+        'project_readme_size': "project_readme_size"
     }
 
     _LANGUAGE_DISPATCHER = {
