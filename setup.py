@@ -28,7 +28,10 @@ setup(
         # For measuring the packageability.
         "pyroma==2.4",
         # Calculates readability metrics.
-        "textstat==0.4.1"
+        "textstat==0.4.1",
+        # To strip markup from Documentation files.
+        "beautifulsoup4==4.6.3",
+        "Markdown==2.6.11"
     ],
     keywords= 'science research engineering static analysis',
     classifiers = [
