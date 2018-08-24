@@ -2,6 +2,14 @@
 
 import glob
 
+# To convert restructuredText to html
+from docutils.core import publish_string
+
+# To convert markdown to html
+from markdown import markdown
+# To extract text from html.
+from bs4 import BeautifulSoup
+
 def search_filename(
         base_folder: str,
         file_name: str,
@@ -31,3 +39,20 @@ def search_filename(
 
 
     return _findings
+
+# The strip functions are indirectly testet by tests for learnability metrics.
+def strip_text_from_html(html_content: str) -> str:
+    """ Strips pure text from strings containing html. """
+    _soup = BeautifulSoup(html_content, features="html.parser")
+    _text = _soup.get_text(separator=" ")
+    return _text
+
+def strip_text_from_md(markdown_content: str) -> str:
+    """ Strips pure text from strings containing Markdown. """
+    _html_content = markdown(markdown_content)
+    return strip_text_from_html(_html_content)
+
+def strip_text_from_rst(rst_content: str) -> str:
+    """ Strips pure text from strings containing RestructuredText. """
+    _html_content = publish_string(rst_content, writer_name='html')
+    return strip_text_from_html(_html_content)
