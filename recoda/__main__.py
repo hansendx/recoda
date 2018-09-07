@@ -46,10 +46,10 @@ def parse_arguments() -> argparse.Namespace:
     _parser.add_argument(
         '-t', '--project-type', type=str,
         help=(
-            "Type of the projects to be analyzed."
-            "The project handler will only look for git repositories in the base directory,"
-            "and ignore anything else."
-            "directory will cause the handler to treat every folder in the base dir as project."
+            "Type of the projects to be analyzed. "
+            "The project handler will only look for git repositories in the base directory, "
+            "and ignore anything else. "
+            "directory will cause the handler to treat every folder in the base dir as project. "
         ),
         required=False,
         choices=['git', 'directory'],
@@ -60,8 +60,8 @@ def parse_arguments() -> argparse.Namespace:
         '--file-output',
         type=str,
         help=(
-            "Full Path to a file in wich the results are going to be written."
-            "Existing files will be overwritten."
+            "Full Path to a file in wich the results are going to be written. "
+            "Existing files will be overwritten. "
         ),
         required=False
     )
@@ -70,8 +70,8 @@ def parse_arguments() -> argparse.Namespace:
         '--processes',
         type=int,
         help=(
-            "Maximum number of processes run in parallel."
-            "Actual processes run might be less, if the system does not have the ressources."
+            "Maximum number of processes run in parallel. "
+            "Number of actual processes run might be less, if the system does not have the ressources."
         ),
         choices=range(1, 200),
         metavar='1 to 200',
