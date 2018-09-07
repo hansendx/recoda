@@ -253,7 +253,6 @@ def _main():
         _dataframe.to_csv(path_or_buf=_arguments.file_output)
 
     for _dataframe in _measurement_generator:
-        print(list(_dataframe.columns.values))
         with open(_arguments.file_output, 'a') as fileout:
             _dataframe.to_csv(fileout, header=False)
 
