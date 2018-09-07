@@ -71,30 +71,35 @@ class TestLearnability(unittest.TestCase):
         _tmp_base_folder = tempfile.mkdtemp()
 
         _docs_measures_dict = {}
+        # We cannot load all files from the test data directory.
         # We might have __init__.py and __pycache__ here.
         # This glob excludes those.
+        # __init__.py needs to live in the data directories to include
+        # the test data as package data.
         for _file in glob.glob(self._MOCK_DOCS_DIR+"/*[0-9]_[a-z]*"):
-            _measure = re.sub(r'^(\d+)_.*', r'\1', os.path.basename(_file))
-            _measured_attribute = re.sub(r'^\d+_(\w+)$', r'\1', os.path.basename(_file))
+            # Filenames are in the Format
+            # {correct measure}_{measured attribute}.{filetype to measure}
+            _measure_value = re.sub(r'^(\d+)_.*', r'\1', os.path.basename(_file))
+            _measured_attribute = re.sub(r'^\d+_(\w+)\.\w+$', r'\1', os.path.basename(_file))
+            _filetype = re.sub(r'^\d+_\w+\.(\w+)$', r'\1', os.path.basename(_file))
 
-            _mock_project_folder = "{tmp}/{measure}_{attribute}".format(
+            _mock_project_folder = "{tmp}/{measure_value}_{attribute}".format(
                 tmp=_tmp_base_folder,
-                measure=_measure,
+                measure_value=_measure_value,
                 attribute=_measured_attribute
             )
+            if not os.path.exists(_mock_project_folder):
             os.mkdir(_mock_project_folder)
 
             if _measured_attribute not in _docs_measures_dict:
                 _docs_measures_dict[_measured_attribute] = {
-                    _measure: _mock_project_folder
+                    _measure_value: _mock_project_folder
                 }
 
-            copy(_file, _mock_project_folder+"/README.md")
+            # We copy the mock file to the test area.
+            # The copy is named as it would be in a real project. 
+            copy(_file, _mock_project_folder+"/README."+_filetype)
 
-        # pkg_resources.resources_filename cashes files, when
-        # in a compiled distribution. We need to clean up potentially
-        # created files.
-        pkg_resources.cleanup_resources()
         self._tmp_base_folder = _tmp_base_folder
         self._docs_measures_dict = _docs_measures_dict
 
