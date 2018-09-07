@@ -109,7 +109,7 @@ class MeasureProjects():
             self,
             project_measure_handler,
             language: str,
-            multiprocessing_chunk_size: int=5
+            multiprocessing_chunk_size: int = 5
         ):
         self.project_handler = project_measure_handler
         self.metrics = self._LANGUAGE_DISPATCHER[language]
@@ -160,7 +160,8 @@ class MeasureProjects():
 
             # TODO set up logger
             print(_current_project_directory+':', _projects_measured+1, 'from', _projects, sep=' ')
-            # A chunk element not only consist of the path to the project but also the metrics dispatcher dict.
+            # A chunk element not only consist of the path to the project
+            # but also the metrics dispatcher dict.
             # Multiprocessing does not function, when called from here directly.
             # This means we need to call it from a function where the dispatcher is not in scope.
             # This in turn means we have to pass the dispatcher dict along with the path.
@@ -171,9 +172,9 @@ class MeasureProjects():
                 )
             )
             # The chunk is filled to its max value so we send it to the multiprocessing function.
-            if (_projects_measured % self._multiprocessing_chunk_size == 0 and _projects_measured):
+            if (_projects_measured + 1) % self._multiprocessing_chunk_size == 0:
                 _rows = _run_multiprocessing(_measurement_chunk)
-                
+
                 # Free up memory
                 _measurement_chunk = []
                 # _run_multiprocessing gave us a list with a list item for every project,
@@ -194,7 +195,7 @@ class MeasureProjects():
 
 def _measure(_project_directory: str, _metrics_dispatcher: dict) -> dict:
     """ Iterate over all metrics for one project.
-    
+
     :param _project_directory:  The path to a projects base directory.
     :param _metrics_dispatcher: Dictionary the measurement names as keys and
                                 the measure functions as values.
@@ -243,7 +244,8 @@ def _main():
 
     _measurement_object = MeasureProjects(
         project_measure_handler=_handler,
-        language=_arguments.language
+        language=_arguments.language,
+        multiprocessing_chunk_size=_arguments.processes
         )
     _measurement_generator = _measurement_object.measure()
 
