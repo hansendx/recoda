@@ -37,6 +37,7 @@ def flesch_reading_ease(project_path: str) -> int:
         _readme_string = _strip_text(_doc_file)
         return textstat.flesch_reading_ease(_readme_string)
     except:
+        #TODO Find out the kind of exception textstat threw
         return 0
 
 def flesch_kincaid_grade(project_path: str) -> int:
@@ -48,20 +49,21 @@ def flesch_kincaid_grade(project_path: str) -> int:
         _readme_string = _strip_text(_doc_file)
         return textstat.flesch_kincaid_grade(_readme_string)
     except:
+        #TODO Find out the kind of exception textstat threw
         return 0
 
 
 
 def _get_main_readme(project_path: str) -> str:
     """ Searches for a projects main README file in the projects base. """
-    _doc_files_suffixes = ['[Mm][Dd]', '[Rr][Ss][Tt], ']
+    _doc_files_suffixes = ['.[Mm][Dd]', '.[Rr][Ss][Tt]', '.[Tt][Xx][Tt]', '']
     _doc_files = list()
 
     for _suffix in _doc_files_suffixes:
         _doc_files.extend(
             search_filename(
                 base_folder=project_path,
-                file_name="[Rr][Ee][Aa][Dd][Mm][Ee]."+_suffix,
+                file_name="[Rr][Ee][Aa][Dd][Mm][Ee]"+_suffix,
                 recursive_flag=False
             )
         )
@@ -69,15 +71,14 @@ def _get_main_readme(project_path: str) -> str:
     if not _doc_files:
         return ""
 
-    if len(_doc_files) > 1:
-        # If we find several README files with different suffix, we expect them to
-        # be redundant and only take the markdown file.
-        _doc_file = [_path for _path in _doc_files if '.md' in _path.lower()][0]
-        if not _doc_file:
-            # If two rst README files are present, we take one of them.
-            _doc_file = [_path for _path in _doc_files if '.rst' in _path.lower()][0]
-    elif len(_doc_files) == 1:
-        _doc_file = _doc_files[0]
+    # If we find several README files, we take the biggest in size
+    # This will hopefully get us the one with the most effort put in.
+    _file_size = -1
+    _doc_file = ''
+    for _file in _doc_files:
+        if os.path.getsize(_file) > _file_size:
+            _file_size = os.path.getsize(_file)
+            _doc_file = _file
 
 
     return _doc_file
@@ -96,5 +97,7 @@ def _strip_text(_doc_file: str) -> str:
             _doc_string = strip_text_from_md(file.read())
         elif '.rst' in _file_name_lowercased:
             _doc_string = strip_text_from_md(file.read())
+        else:
+            _doc_string = file.read()
 
     return _doc_string
