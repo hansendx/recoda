@@ -1,17 +1,12 @@
 """ Setup script for the SingularityAutobuild Package."""
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 setup(
     name='ReCodA',
     version='0.1.0',
     author='Dominique Hansen',
     author_email='Dominique.Hansen@hu-berlin.de',
-    packages=[
-        'recoda',
-        'recoda.analyse',
-        'recoda.project_handler',
-        'recoda.tests'
-    ],
+    packages=find_namespace_packages(),
     package_data={'recoda.tests': ['data/mock_setup_py/*', 'data/mock_docs/*']} ,
     license='MIT License',
     url='https://scm.cms.hu-berlin.de/hansendx/ReCodA',
@@ -33,7 +28,7 @@ setup(
         "beautifulsoup4==4.6.3",
         "Markdown==2.6.11"
     ],
-    keywords= 'science research engineering static analysis',
+    keywords='science research engineering static analysis',
     classifiers = [
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
