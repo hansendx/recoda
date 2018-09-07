@@ -26,7 +26,9 @@ setup(
         "textstat==0.4.1",
         # To strip markup from Documentation files.
         "beautifulsoup4==4.6.3",
-        "Markdown==2.6.11"
+        "Markdown==2.6.11",
+        # To measure code related metrics.
+        "astroid==2.0.4"
     ],
     keywords='science research engineering static analysis',
     classifiers = [
