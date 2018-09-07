@@ -87,9 +87,11 @@ class MeasureProjects():
     # dict into one for the functions and one for the packages
     # containing language specific functions.
     _METRICS_DISPATCHER = {
-        'packageable': "packageable",
-        'flesh_reading_ease': "flesh_reading_ease",
-        'project_readme_size': "project_readme_size"
+        #'packageability': "packageability",
+        'flesch_reading_ease': "flesch_reading_ease",
+        'project_readme_size': "project_readme_size",
+        'flesch_kincaid_grade': "flesch_kincaid_grade",
+      #  'average_comment_density': "average_comment_density"
     }
 
     _LANGUAGE_DISPATCHER = {
@@ -242,7 +244,7 @@ def _main():
     # We want to print a header, if we create a new file.
     if not os.path.isfile(_arguments.file_output):
         _dataframe = next(_measurement_generator)
-    _dataframe.to_csv(path_or_buf=_arguments.file_output)
+        _dataframe.to_csv(path_or_buf=_arguments.file_output)
 
     for _dataframe in _measurement_generator:
         print(list(_dataframe.columns.values))

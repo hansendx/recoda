@@ -3,7 +3,8 @@
 
 from recoda.analyse.python import (
     _installability,
-    _learnability
+    _learnability,
+    _understandability
 )
 
 # pylint: disable-msg=c0103
@@ -20,3 +21,9 @@ packageability = _installability.packageability
 project_readme_size = _learnability.project_readme_size
 
 flesch_reading_ease = _learnability.flesch_reading_ease
+
+flesch_kincaid_grade = _learnability.flesch_kincaid_grade
+
+# Understandbility related metrics.
+
+average_comment_density = _understandability.average_comment_density
