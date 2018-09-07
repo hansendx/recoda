@@ -1,0 +1,13 @@
+""" test """
+import os
+
+def testfunction(test):
+    """ testdocstring
+    
+    Some more docstring
+    """
+    _test = test
+    _test = _test + _test
+    # Test
+    # Also Test
+    return _test
