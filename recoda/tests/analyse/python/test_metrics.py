@@ -17,7 +17,7 @@ from recoda.analyse.python.metrics import (
 )
 
 
-# Tests functions in the _installability module. 
+# Tests functions in the _installability module.
 class TestPackageable(unittest.TestCase):
     """ Test the function measuring the packageability. """
 
@@ -99,7 +99,7 @@ class TestLearnability(unittest.TestCase):
                 }
 
             # We copy the mock file to the test area.
-            # The copy is named as it would be in a real project. 
+            # The copy is named as it would be in a real project.
             copy(_file, _mock_project_folder+"/README."+_filetype)
 
         self._tmp_base_folder = _tmp_base_folder

@@ -7,7 +7,7 @@ setup(
     author='Dominique Hansen',
     author_email='Dominique.Hansen@hu-berlin.de',
     packages=find_namespace_packages(),
-    package_data={'recoda.tests': ['data/mock_setup_py/*', 'data/mock_docs/*']} ,
+    package_data={'recoda.tests': ['data/mock_setup_py/*', 'data/mock_docs/*']},
     license='MIT License',
     url='https://scm.cms.hu-berlin.de/hansendx/ReCodA',
     description=(
@@ -31,7 +31,7 @@ setup(
         "astroid==2.0.4"
     ],
     keywords='science research engineering static analysis',
-    classifiers = [
+    classifiers=[
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License'

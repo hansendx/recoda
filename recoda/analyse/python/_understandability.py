@@ -65,7 +65,7 @@ def _get_comment_density(_file_path):
 
     # Characters, that cannot be recognized do not change line counts (hopefully)
     # and the actual text is not important for this measure.
-    # We let open replace those characters because we do not want it to cause 
+    # We let open replace those characters because we do not want it to cause
     # the measurement run to exit on the error.
     _file_content = open(_file_path, 'r', errors='replace')
     _file_string = ''
@@ -184,18 +184,4 @@ def _get_docstrings(astroid_node: astroid.node_classes) -> list:
 
     for astroid_child in astroid_node.get_children():
         _list = _list + _get_docstrings(astroid_child)
-    return [_string for _string in _list if _string ]
-
-
-        # try:
-        #     # It is possible, that incorrectly named files exist.
-        #     # Files ending with .py that are no legitimate python files.
-        #     # If astroid cannot parse a file we assume the naming of the file to be
-        #     # incorrect and ignore it.
-        #     with open(_file_path, 'r', errors='replace') as _file_content:
-        #         # Some script files seem to be incompatible with utf-8
-        #         # We let open replace problem characters, since we only count lines.
-        #         _cleaned_files.append(radon.raw.analyze(_file_content.read()))
-        # except astroid.AstroidError:
-        #     #TODO Add Logging message for invalid file
-        #     pass
+    return [_string for _string in _list if _string]

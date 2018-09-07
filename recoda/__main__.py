@@ -6,7 +6,7 @@ when introducing the average comment density measure.
 Multiprocessing did however take more and more ram without freeing it.
 For this reason several lines to free up space 'manually' where added.
 Files are closed explicitly after use, string values are set to None.
-The dataframe used to gather all metrics is also periodically written to 
+The dataframe used to gather all metrics is also periodically written to
 a csv file and its content so far is then deleted.
 """
 
@@ -45,10 +45,12 @@ def parse_arguments() -> argparse.Namespace:
     )
     _parser.add_argument(
         '-t', '--project-type', type=str,
-        help="""Type of the projects to be analyzed.
-        The project handler will only look for git repositories in the base directory,
-        and ignore anything else.
-        directory will cause the handler to treat every folder in the base dir as project.""",
+        help=(
+            "Type of the projects to be analyzed."
+            "The project handler will only look for git repositories in the base directory,"
+            "and ignore anything else."
+            "directory will cause the handler to treat every folder in the base dir as project."
+        ),
         required=False,
         choices=['git', 'directory'],
         default='directory'
@@ -57,17 +59,21 @@ def parse_arguments() -> argparse.Namespace:
         '-f',
         '--file-output',
         type=str,
-        help="""Full Path to a file in wich the results are going to be written.
-        Existing files will be overwritten.""",
+        help=(
+            "Full Path to a file in wich the results are going to be written."
+            "Existing files will be overwritten."
+        ),
         required=False
     )
     _parser.add_argument(
         '-p',
         '--processes',
         type=int,
-        help="""Maximum number of processes run in parallel.
-        Actual processes run might be less, if the system does not have the ressources.""",
-        choices=range(1,200),
+        help=(
+            "Maximum number of processes run in parallel."
+            "Actual processes run might be less, if the system does not have the ressources."
+        ),
+        choices=range(1, 200),
         metavar='1 to 200',
         default=5
     )
@@ -91,7 +97,7 @@ class MeasureProjects():
         'flesch_reading_ease': "flesch_reading_ease",
         'project_readme_size': "project_readme_size",
         'flesch_kincaid_grade': "flesch_kincaid_grade",
-      #  'average_comment_density': "average_comment_density"
+        'average_comment_density': "average_comment_density"
     }
 
     _LANGUAGE_DISPATCHER = {
