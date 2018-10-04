@@ -7,59 +7,61 @@ import re
 import string
 import tempfile
 import unittest
-from shutil import copy, rmtree
+from shutil import copy, rmtree, copytree
 
 import pkg_resources
+
+import pipreqs.pipreqs as pipreqs
 from recoda.analyse.python.metrics import (
     average_comment_density,
-    packageability,
-    project_readme_size
+    project_readme_size,
+    requirements_declared
 )
 
 
 # Tests functions in the _installability module.
-class TestPackageable(unittest.TestCase):
-    """ Test the function measuring the packageability. """
+# class TestPackageable(unittest.TestCase):
+#     """ Test the function measuring the packageability. """
 
 
-    _MOCK_SETUP_DIR = pkg_resources.resource_filename(
-        'recoda.tests.data',
-        'mock_setup_py')
+#     _MOCK_SETUP_DIR = pkg_resources.resource_filename(
+#         'recoda.tests.data',
+#         'mock_setup_py')
 
-    def setUp(self):
-        """ Create two mock packages with setup scripts to measure. """
-        _tmp_base_folder = tempfile.mkdtemp()
+#     def setUp(self):
+#         """ Create two mock packages with setup scripts to measure. """
+#         _tmp_base_folder = tempfile.mkdtemp()
 
-        _scored_setup_dict = {}
-        for _file in glob.glob(self._MOCK_SETUP_DIR+"/*setup_py", recursive=True):
-            _score = re.match(r'^\d+', os.path.basename(_file))[0]
-            _mock_project_folder = "{tmp}/{score}_py".format(
-                tmp=_tmp_base_folder,
-                score=_score
-            )
-            os.mkdir(_mock_project_folder)
+#         _scored_setup_dict = {}
+#         for _file in glob.glob(self._MOCK_SETUP_DIR+"/*setup_py", recursive=True):
+#             _score = re.match(r'^\d+', os.path.basename(_file))[0]
+#             _mock_project_folder = "{tmp}/{score}_py".format(
+#                 tmp=_tmp_base_folder,
+#                 score=_score
+#             )
+#             os.mkdir(_mock_project_folder)
 
-            _scored_setup_dict[_score] = _mock_project_folder
+#             _scored_setup_dict[_score] = _mock_project_folder
 
-            copy(_file, _scored_setup_dict[_score]+'/setup.py')
+#             copy(_file, _scored_setup_dict[_score]+'/setup.py')
 
-        # pkg_resources.resources_filename cashes files, when
-        # in a compiled distribution. We need to clean up potentially
-        # created files.
-        pkg_resources.cleanup_resources()
+#         # pkg_resources.resources_filename cashes files, when
+#         # in a compiled distribution. We need to clean up potentially
+#         # created files.
+#         pkg_resources.cleanup_resources()
 
-        self._tmp_base_folder = _tmp_base_folder
-        self._scored_setup_dict = _scored_setup_dict
+#         self._tmp_base_folder = _tmp_base_folder
+#         self._scored_setup_dict = _scored_setup_dict
 
-    def test_scoring(self):
-        """ Compare the validated scores with packageable scores. """
-        for _score, _folder in self._scored_setup_dict.items():
-            _test_score = packageability(_folder)
-            self.assertEqual(int(_score), _test_score)
+#     def test_scoring(self):
+#         """ Compare the validated scores with packageable scores. """
+#         for _score, _folder in self._scored_setup_dict.items():
+#             _test_score = packageability(_folder)
+#             self.assertEqual(int(_score), _test_score)
 
-    def tearDown(self):
-        """ Clean up. """
-        rmtree(self._tmp_base_folder)
+#     def tearDown(self):
+#         """ Clean up. """
+#         rmtree(self._tmp_base_folder)
 
 class TestLearnability(unittest.TestCase):
     """ Test the functions measuring Learnability of software projects. """
@@ -184,3 +186,42 @@ class TestUnderstandability(unittest.TestCase):
         # in a compiled distribution. We need to clean up potentially
         # created files.
         pkg_resources.cleanup_resources()
+
+class TestRequirementsDeclared(unittest.TestCase):
+    """ Test the functions for the installability metrics. """
+
+    def setUp(self):
+        """ Create a copy of this package to use it as test data. """
+        _this_package = pkg_resources.resource_filename('recoda', '')
+        self.this_package_basename = os.path.basename(_this_package)
+        self.test_sandbox = tempfile.mkdtemp()
+        self.requirements_filename = 'requirements.txt'
+        self.import_list = pipreqs.get_all_imports(path=_this_package)
+        copytree(_this_package, self.test_sandbox+'/'+self.this_package_basename)
+
+    def test_from_requirements_file(self):
+        """ Do we get expected behavior when a requirements.txt file is present?"""
+        
+        # Test correct requirements first
+        with open(
+            '{}/{}'.format(
+                self.test_sandbox,
+                self.requirements_filename
+            ),
+            'w'
+        ) as file:
+            file.write('\n'.join(self.import_list))
+
+        self.assertTrue(
+            requirements_declared(self.test_sandbox)
+        )
+
+
+    def tearDown(self):
+        """ Clean up the sandbox. """
+        rmtree(self.test_sandbox, ignore_errors=True)
+        # pkg_resources.resources_filename cashes files, when
+        # in a compiled distribution. We need to clean up potentially
+        # created files.
+        pkg_resources.cleanup_resources()
+        

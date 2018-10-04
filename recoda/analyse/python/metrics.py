@@ -14,7 +14,8 @@ from recoda.analyse.python import (
 # functions into a barebones would just lead to a lot more unnecessary code.
 
 # Installability related metrics.
-packageability = _installability.packageability
+#packageability = _installability.packageability
+requirements_declared = _installability.requirements_declared
 
 # Learnability related metrics.
 
