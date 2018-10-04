@@ -114,7 +114,7 @@ class TestMeasureProjects(unittest.TestCase):
         If it is actually filled with measurements is to be measured elsewhere. #TODO
         """
         _test_object = main.MeasureProjects(project_measure_handler=self.handler, language='python')
-        _test_output = _test_object.measure()
+        _test_output = pandas.concat([frame for frame in _test_object.measure()])
         # Do we get a pandas dataframe?
         self.assertIsInstance(_test_output, pandas.DataFrame)
         # Do we have an id column?
