@@ -81,7 +81,7 @@ def _get_comment_density(_file_path):
 
     try:
         # Some script files seem to be incompatible with utf-8
-        # We let open replace problem characters, since we only count lines.
+        # We let open() replace problem characters, since we only count lines.
         _astroid_node = astroid.parse(_file_string)
         _file_string = None
     except astroid.exceptions.AstroidSyntaxError:
