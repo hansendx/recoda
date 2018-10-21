@@ -199,22 +199,72 @@ class TestRequirementsDeclared(unittest.TestCase):
         self.import_list = pipreqs.get_all_imports(path=_this_package)
         copytree(_this_package, self.test_sandbox+'/'+self.this_package_basename)
 
-    def test_from_requirements_file(self):
-        """ Do we get expected behavior when a requirements.txt file is present?"""
+    def test_score_from_requirements_file(self):
+        """ Do we get a score when requirements are declared in the requirements.txt"""
         
-        # Test correct requirements first
+        # Test all requirements correctly declared
         with open(
-            '{}/{}'.format(
-                self.test_sandbox,
-                self.requirements_filename
-            ),
-            'w'
-        ) as file:
-            file.write('\n'.join(self.import_list))
+            '{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
+        ) as requirements_mock_file:
+            requirements_mock_file.write('\n'.join(self.import_list))
 
-        self.assertTrue(
+        # All requirements declared should yield 100% i.e. 1
+        self.assertEqual(
+            1,
             requirements_declared(self.test_sandbox)
         )
+
+        # Test requirements file with one missing dependency
+        with open( '{}/{}'.format( self.test_sandbox, self.requirements_filename), 'w'
+        ) as requirements_mock_file:
+            requirements_mock_file.write('\n'.join(self.import_list[1:]))
+
+        _percentage_of_requirements_declared = float(len(self.import_list) -1) / len(self.import_list) 
+        self.assertEqual(
+            _percentage_of_requirements_declared,
+            requirements_declared(self.test_sandbox)
+        )
+
+    def test_from_setup_script(self):
+        """ Do we get expected behavior, if requirements are in the setup.py
+
+        There can be either no requirements.txt file or a file containing only a "."
+        character. We test for both setups.
+        """
+        _full_path='{dirname}/{filename}'
+
+        _setup_mock_content = (
+        "from distutils.core import setup\n"
+        "setup(\n"
+        "    name='stub',\n"
+        "    install_requires=[\n"
+        "        {requirements}\n"
+        "    ]\n"
+        ")"
+        )
+
+        _quoted_import_list=["\""+item+"\"" for item in self.import_list[1:]]
+        _requirements_array_string = ',\n'.join(_quoted_import_list)
+
+        # Test requirements file with one missing dependency
+        with open(
+            _full_path.format(
+                dirname=self.test_sandbox,
+                filename='setup.py'),
+            'w'
+        ) as requirements_mock_file:
+            requirements_mock_file.write(
+                _setup_mock_content.format(
+                    requirements=_requirements_array_string)
+            )
+
+        _percentage_of_requirements_declared = float(len(self.import_list) -1) / float(len(self.import_list)) 
+        self.assertEqual(
+            _percentage_of_requirements_declared,
+            requirements_declared(self.test_sandbox)
+        )
+
+
 
 
     def tearDown(self):
