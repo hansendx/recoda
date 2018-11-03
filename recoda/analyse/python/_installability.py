@@ -6,7 +6,6 @@ import sys
 
 import astroid
 from pipreqs import pipreqs
-import pyroma
 import numpy
 
 from recoda.analyse.helpers import (
@@ -16,26 +15,25 @@ from recoda.analyse.helpers import (
 def packageability(project_path: str) -> int:
     """ Gives a score on the packageability of a python software project.
 
+    The score is the percentage of setup scripts, that contain a call to setup.
+
     :param project: Represents a software Project somewhere in local storage.
+    :returns:       A score on a projects packageability.
     """
     _setup_files = _get_setup_locations(project_path)
 
-    if len(_setup_files) == 1:
-        _stdout = sys.stdout
-        sys.stdout = open('/dev/null', 'w')
-        _score = pyroma.run('directory', project_path)
-        sys.stdout = _stdout
-        return _score
-    if not _setup_files:
-        # No setup.py gets a zero score
-        return 0
+    _packageable_setup_files = []
+    for _file in _setup_files:
+        _setup_file = open(_file, 'r')
+        _setup_node = astroid.parse(_setup_file.read())
+        if _astroid_setup_search(_setup_node):
+            _packageable_setup_files.append(1)
+        else:
+            _packageable_setup_files.append(0)
 
-    _score_list = []
-    for _setup_file in _setup_files:
-        _score_list.append(
-            pyroma.run('directory', project_path)
-        )
-    return numpy.mean(_score_list)
+    if not _packageable_setup_files:
+        return float(0)
+    return numpy.mean(_packageable_setup_files)
 
 def requirements_declared(project_path: str) -> float:
     """ Calculates percentage of not declared dependencies. """
@@ -94,7 +92,7 @@ def _get_requirements_from_setup(path: str) -> str:
 
 def _astroid_parse_setup(path: str) -> str:
     """ Extract requirements out of the setup call in a setup.py
-    
+
     If for som reason several setup calls are present,
     their requirements are concatenated
 

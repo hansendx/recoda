@@ -28,3 +28,4 @@ flesch_kincaid_grade = _learnability.flesch_kincaid_grade
 # Understandability related metrics.
 
 average_comment_density = _understandability.average_comment_density
+average_standard_compliance = _understandability.average_standard_compliance

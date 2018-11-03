@@ -11,57 +11,14 @@ from shutil import copy, rmtree, copytree
 
 import pkg_resources
 
-import pipreqs.pipreqs as pipreqs
+from pipreqs import pipreqs
 from recoda.analyse.python.metrics import (
     average_comment_density,
+    average_standard_compliance,
     project_readme_size,
     requirements_declared
 )
 
-
-# Tests functions in the _installability module.
-# class TestPackageable(unittest.TestCase):
-#     """ Test the function measuring the packageability. """
-
-
-#     _MOCK_SETUP_DIR = pkg_resources.resource_filename(
-#         'recoda.tests.data',
-#         'mock_setup_py')
-
-#     def setUp(self):
-#         """ Create two mock packages with setup scripts to measure. """
-#         _tmp_base_folder = tempfile.mkdtemp()
-
-#         _scored_setup_dict = {}
-#         for _file in glob.glob(self._MOCK_SETUP_DIR+"/*setup_py", recursive=True):
-#             _score = re.match(r'^\d+', os.path.basename(_file))[0]
-#             _mock_project_folder = "{tmp}/{score}_py".format(
-#                 tmp=_tmp_base_folder,
-#                 score=_score
-#             )
-#             os.mkdir(_mock_project_folder)
-
-#             _scored_setup_dict[_score] = _mock_project_folder
-
-#             copy(_file, _scored_setup_dict[_score]+'/setup.py')
-
-#         # pkg_resources.resources_filename cashes files, when
-#         # in a compiled distribution. We need to clean up potentially
-#         # created files.
-#         pkg_resources.cleanup_resources()
-
-#         self._tmp_base_folder = _tmp_base_folder
-#         self._scored_setup_dict = _scored_setup_dict
-
-#     def test_scoring(self):
-#         """ Compare the validated scores with packageable scores. """
-#         for _score, _folder in self._scored_setup_dict.items():
-#             _test_score = packageability(_folder)
-#             self.assertEqual(int(_score), _test_score)
-
-#     def tearDown(self):
-#         """ Clean up. """
-#         rmtree(self._tmp_base_folder)
 
 class TestLearnability(unittest.TestCase):
     """ Test the functions measuring Learnability of software projects. """
@@ -142,9 +99,12 @@ class TestUnderstandability(unittest.TestCase):
         """ Set up mock project with documentation. """
         self._tmp_base_folder = tempfile.mkdtemp()
 
-
     def test_average_comment_density(self):
-        """ Copy all test files into the test area, let them get measured and check measure. """
+        """ See if we get expected comment density.
+
+        Copy all test files into the test area,
+        let them get measured and check against expected values.
+        """
         _group_size = 0
         _total = 0
 
@@ -177,7 +137,34 @@ class TestUnderstandability(unittest.TestCase):
             _test_average_comment_density
         )
 
+    def test_average_standard_compliance(self):
+        """ See if we get expected standard compliance measures.
 
+        Create test project inside the tmp folder.
+        Fill it with mock python files.
+        Measure the test project and compare to expected values.
+        """
+
+        with open(self._tmp_base_folder+"/half.py", 'w') as half_compliant_file:
+            half_compliant_file.write('# Not a Docstring')
+            half_compliant_file.write('\n')
+            half_compliant_file.write('import os\n')
+
+        _half_compliant_test = average_standard_compliance(
+            self._tmp_base_folder
+        )
+        self.assertEqual(float(0.5), _half_compliant_test)
+
+        with open(self._tmp_base_folder+"/full.py", 'w') as compliant_file:
+            compliant_file.write('"""DOCSTRING"""')
+            compliant_file.write('\n')
+            compliant_file.write('import os\n')
+
+        # The 0.5 and 1.0 compliante file should average together to 0.75
+        _half_plus_full_avg_compliant_test = average_standard_compliance(
+            self._tmp_base_folder
+        )
+        self.assertEqual(float(0.75), _half_plus_full_avg_compliant_test)
 
     def tearDown(self):
         """ Clean Up """
@@ -215,11 +202,13 @@ class TestRequirementsDeclared(unittest.TestCase):
         )
 
         # Test requirements file with one missing dependency
-        with open( '{}/{}'.format( self.test_sandbox, self.requirements_filename), 'w'
+        with open('{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list[1:]))
 
-        _percentage_of_requirements_declared = float(len(self.import_list) -1) / len(self.import_list) 
+        _percentage_of_requirements_declared = float(
+            len(self.import_list) -1) / len(self.import_list
+        ) 
         self.assertEqual(
             _percentage_of_requirements_declared,
             requirements_declared(self.test_sandbox)

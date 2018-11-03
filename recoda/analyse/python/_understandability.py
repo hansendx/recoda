@@ -1,16 +1,17 @@
 """ Module to contain the measuring tools for code understandability. """
 
-import re
 import os
+import re
 import tokenize
+from subprocess import PIPE, Popen
 
 import astroid
-
+import numpy
 from recoda.analyse.helpers import search_filename
 
 TIMEOUT = 200
 
-def average_comment_density(project_path) -> int:
+def average_comment_density(project_path) -> float:
     """ Calculate the average comment density for all .py files.
 
     Commented Lines of Code (CLOC) are:
@@ -50,6 +51,82 @@ def average_comment_density(project_path) -> int:
         return float(_sum_scores / _group_size)
     return None
 
+def average_standard_compliance(project_path: str) -> float:
+    """ Get the average of the standard compliance density for every file.
+
+    Count the style offences of all python files
+    and normalize it using the files size.
+    Then calculate the average for all files.
+
+    :param project_path: Full path to the project to be measured.
+    :returns:            Average standard compliance of all files
+    """
+    _python_files = _get_python_files(project_path)
+
+    _scores = list()
+    for _file_path in _python_files:
+        _score = _get_standard_compliance(_file_path)
+        if _score is None:
+            return None
+        _scores.append(_score)
+
+    return numpy.mean(_scores)
+
+
+def _get_standard_compliance(_file_path: str) -> float:
+    """ Get standard compliance for a singe file. """
+
+    _line_number = 0
+    _file = open(_file_path, 'r')
+
+    for _ in _file.readlines():
+        _line_number = _line_number + 1
+
+    _file.close()
+
+    _process = Popen(
+        [
+            'pylint',
+            '-s',
+            'n',
+            '--disable=all',
+            '--enable=C',
+            '--enable=E0001',
+            "--msg-template='{C}'",
+            _file_path
+        ],
+        stdout=PIPE
+    )
+    _output = _process.communicate()
+    _score = _parse_pylint_output(_output[0].decode("utf-8"))
+
+    if _score is None:
+        return None
+
+    _non_compliance = float(_score / _line_number)
+    # We have calculated the percentage of non-compliant lines,
+    # we want the percentage of the compliant lines.
+    return float(1 - _non_compliance)
+
+def _parse_pylint_output(_pylint_output: str) -> int:
+    """ Parse pylint string and count Convention messages. """
+    _convention_error = 0
+    # We expect to get a consecutive string with \n between messages
+    _message_list = _pylint_output.split('\n')
+    for message in _message_list:
+        if message == 'C':
+            _convention_error = _convention_error + 1
+        if message == 'E':
+            # A python syntax error will block all other errors.
+            # We cannot use this, it would supress the convention errors,
+            # giving this file a perfect score.
+            # This could come form a legit error
+            # or from py3 incompatibility.
+            return None
+
+    return _convention_error
+
+
 
 def _get_comment_density(_file_path):
     """ Get the comment density for a single file. """
@@ -86,7 +163,6 @@ def _get_comment_density(_file_path):
         _file_string = None
     except astroid.exceptions.AstroidSyntaxError:
         _file_string = None
-#        print(_file_path, 'not astroid_parseable', sep=' ')
         return None
 
     _multiline_comments = _get_docstring_lines(
@@ -103,8 +179,6 @@ def _get_comment_density(_file_path):
     if _lines_of_code:
         return _commented_lines_of_code / _lines_of_code
     return None
-
-
 
 def _get_single_comments(_file_path):
     """ Uses tokenize to identify # comments and counts their occurrences. """
@@ -123,8 +197,6 @@ def _get_single_comments(_file_path):
     _comment_count = len(_single_comments)
     _single_comments = None
     return _comment_count
-
-
 
 def _get_docstring_lines(docstring_list: list) -> int:
     """ Counts non empty lines in a list of docstrings. """
@@ -148,8 +220,6 @@ def _get_docstring_lines(docstring_list: list) -> int:
 
     return len(_docstring_non_blank_lines)
 
-
-
 def _get_python_files(project_path: str) -> list:
     """ Returns a list of all python files in a directory and its sub directories. """
     _python_glob = "**/*.py"
@@ -162,7 +232,6 @@ def _get_python_files(project_path: str) -> list:
     _files = [_file for _file in _python_files if os.path.isfile(_file)]
 
     return _python_files
-
 
 def _get_docstrings(astroid_node: astroid.node_classes) -> list:
     """ Go through an astroid tree and get all docstrings.
