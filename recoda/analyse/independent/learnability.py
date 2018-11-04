@@ -96,7 +96,7 @@ def _strip_text(_doc_file: str) -> str:
         if '.md' in _file_name_lowercased:
             _doc_string = strip_text_from_md(file.read())
         elif '.rst' in _file_name_lowercased:
-            _doc_string = strip_text_from_md(file.read())
+            _doc_string = strip_text_from_rst(file.read())
         else:
             _doc_string = file.read()
 
