@@ -3,8 +3,11 @@
 
 from recoda.analyse.python import (
     _installability,
-    _learnability,
     _understandability
+)
+
+from recoda.analyse.independent import (
+    learnability
 )
 
 # pylint: disable-msg=c0103
@@ -19,11 +22,9 @@ requirements_declared = _installability.requirements_declared
 
 # Learnability related metrics.
 
-project_readme_size = _learnability.project_readme_size
-
-flesch_reading_ease = _learnability.flesch_reading_ease
-
-flesch_kincaid_grade = _learnability.flesch_kincaid_grade
+project_readme_size = learnability.project_readme_size
+flesch_reading_ease = learnability.flesch_reading_ease
+flesch_kincaid_grade = learnability.flesch_kincaid_grade
 
 # Understandability related metrics.
 
