@@ -16,7 +16,8 @@ from recoda.analyse.python.metrics import (
     average_comment_density,
     average_standard_compliance,
     project_readme_size,
-    requirements_declared
+    requirements_declared,
+    license_type
 )
 
 
@@ -263,4 +264,41 @@ class TestRequirementsDeclared(unittest.TestCase):
         # in a compiled distribution. We need to clean up potentially
         # created files.
         pkg_resources.cleanup_resources()
-        
+
+
+class TestOpenness(unittest.TestCase):
+    """ Test the metric concerned with the licensing of projects """
+
+    _MOCK_LICENSES_DIR = pkg_resources.resource_filename(
+        'recoda.tests.data',
+        'mock_licenses')
+
+    def setUp(self):
+        """ Set up a temp folder to act as test project. """
+        self._test_sandbox = tempfile.mkdtemp()
+
+    def test_license_type(self):
+        """ See if we can recognize open license files """
+
+        for _original_file in os.listdir(self._MOCK_LICENSES_DIR):
+            # The license type is in each files name
+            _expected_license = _original_file
+            _original_file_path = self._MOCK_LICENSES_DIR+'/'+_original_file
+            _file = copy(_original_file_path, self._test_sandbox+'/LICENSE')
+            _measured_license = license_type(project_path=self._test_sandbox)
+
+            self.assertEqual(_expected_license, _measured_license)
+            os.remove(_file)
+
+        # Test for project without license file.
+        _measured_license = license_type(project_path=self._test_sandbox)
+        self.assertIsNone(_measured_license)
+
+
+    def tearDown(self):
+        """ Clean up the sandbox. """
+        rmtree(self._test_sandbox, ignore_errors=True)
+        # pkg_resources.resources_filename cashes files, when
+        # in a compiled distribution. We need to clean up potentially
+        # created files.
+        pkg_resources.cleanup_resources()

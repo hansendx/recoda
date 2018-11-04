@@ -7,7 +7,8 @@ from recoda.analyse.python import (
 )
 
 from recoda.analyse.independent import (
-    learnability
+    learnability,
+    openness
 )
 
 # pylint: disable-msg=c0103
@@ -30,3 +31,7 @@ flesch_kincaid_grade = learnability.flesch_kincaid_grade
 
 average_comment_density = _understandability.average_comment_density
 average_standard_compliance = _understandability.average_standard_compliance
+
+# Openness related metrics.
+
+license_type = openness.license_type
