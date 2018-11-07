@@ -97,7 +97,10 @@ class MeasureProjects():
         'flesch_reading_ease': "flesch_reading_ease",
         'project_readme_size': "project_readme_size",
         'flesch_kincaid_grade': "flesch_kincaid_grade",
-        'average_comment_density': "average_comment_density"
+        'average_comment_density': "average_comment_density",
+        'average_standard_compliance': "average_standard_compliance",
+        'license_type': "license_type",
+        'testlibrary_usage': "testlibrary_usage"
     }
 
     _LANGUAGE_DISPATCHER = {
