@@ -17,7 +17,8 @@ from recoda.analyse.python.metrics import (
     average_standard_compliance,
     project_readme_size,
     requirements_declared,
-    license_type
+    license_type,
+    testlibrary_usage
 )
 
 
@@ -294,6 +295,42 @@ class TestOpenness(unittest.TestCase):
         _measured_license = license_type(project_path=self._test_sandbox)
         self.assertIsNone(_measured_license)
 
+
+    def tearDown(self):
+        """ Clean up the sandbox. """
+        rmtree(self._test_sandbox, ignore_errors=True)
+        # pkg_resources.resources_filename cashes files, when
+        # in a compiled distribution. We need to clean up potentially
+        # created files.
+        pkg_resources.cleanup_resources()
+
+class TestVerifiability(unittest.TestCase):
+    """ Test the measures for Verifiability."""
+
+    _PATH_TO_THIS_TEST_SCRIPT = pkg_resources.resource_filename(
+        'recoda.tests.analyse.python',
+        'test_metrics.py')
+
+    def setUp(self):
+        """ Set up a temp folder to act as test project. """
+        self._test_sandbox = tempfile.mkdtemp()
+
+    def test_existing_test(self):
+        """ Do we get a True if there is a test script? """
+        copy(
+            self._PATH_TO_THIS_TEST_SCRIPT,
+            self._test_sandbox+'/test_file.py'
+        )
+        self.assertTrue(testlibrary_usage(self._test_sandbox))
+
+    def test_nonexisting_test(self):
+        """ Do we get false without test scripts? """
+        with open(self._test_sandbox+'/non_test_file.py', 'w') as _file:
+            _file.write('import os\n')
+            _file.write('# Should we do something with unittest\n')
+            _file.write('os.path.dirname(os.path.abspath(__file__))\n')
+  
+        self.assertFalse(testlibrary_usage(self._test_sandbox))
 
     def tearDown(self):
         """ Clean up the sandbox. """

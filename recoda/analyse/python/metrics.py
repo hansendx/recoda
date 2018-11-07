@@ -3,7 +3,8 @@
 
 from recoda.analyse.python import (
     _installability,
-    _understandability
+    _understandability,
+    _verifiability
 )
 
 from recoda.analyse.independent import (
@@ -35,3 +36,5 @@ average_standard_compliance = _understandability.average_standard_compliance
 # Openness related metrics.
 
 license_type = openness.license_type
+
+testlibrary_usage = _verifiability.testlibrary_usage
