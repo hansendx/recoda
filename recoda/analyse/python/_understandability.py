@@ -114,15 +114,14 @@ def _parse_pylint_output(_pylint_output: str) -> int:
     # We expect to get a consecutive string with \n between messages
     _message_list = _pylint_output.split('\n')
     for message in _message_list:
-        if message == 'C':
-            _convention_error = _convention_error + 1
         if message == 'E':
             # A python syntax error will block all other errors.
-            # We cannot use this, it would supress the convention errors,
+            # We cannot use this, it would suppress the convention errors,
             # giving this file a perfect score.
             # This could come form a legit error
             # or from py3 incompatibility.
             return None
+        _convention_error = _convention_error + 1
 
     return _convention_error
 
