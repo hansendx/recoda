@@ -91,6 +91,7 @@ def _get_standard_compliance(_file_path: str) -> float:
             'n',
             '--disable=all',
             '--enable=C',
+            '--enable=F',
             '--enable=E0001',
             "--msg-template='{C}'",
             _file_path
@@ -114,7 +115,7 @@ def _parse_pylint_output(_pylint_output: str) -> int:
     # We expect to get a consecutive string with \n between messages
     _message_list = _pylint_output.split('\n')
     for message in _message_list:
-        if message == 'E':
+        if message == 'E' or message == 'F':
             # A python syntax error will block all other errors.
             # We cannot use this, it would suppress the convention errors,
             # giving this file a perfect score.
