@@ -93,6 +93,10 @@ class MeasureProjects():
     # measured. For now the easiest way was to split the dispatcher
     # dict into one for the functions and one for the packages
     # containing language specific functions.
+    # TODO Refactor:
+    # Registering every measure here by hand seems a bit inconvenient.
+    # Especially with growing measurements.
+    # Maybe there is a better way to do this.
     _METRICS_DISPATCHER = {
         #'packageability': "packageability",
         'flesch_reading_ease': "flesch_reading_ease",
@@ -101,7 +105,8 @@ class MeasureProjects():
         'average_comment_density': "average_comment_density",
         'average_standard_compliance': "average_standard_compliance",
         'license_type': "license_type",
-        'testlibrary_usage': "testlibrary_usage"
+        'testlibrary_usage': "testlibrary_usage",
+        'error_density': "error_density"
     }
 
     _LANGUAGE_DISPATCHER = {

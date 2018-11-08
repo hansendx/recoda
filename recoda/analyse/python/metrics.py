@@ -4,7 +4,8 @@
 from recoda.analyse.python import (
     _installability,
     _understandability,
-    _verifiability
+    _verifiability,
+    _correctness
 )
 
 from recoda.analyse.independent import (
@@ -38,3 +39,7 @@ average_standard_compliance = _understandability.average_standard_compliance
 license_type = openness.license_type
 
 testlibrary_usage = _verifiability.testlibrary_usage
+
+# Correctness related metrics.
+
+error_density = _correctness.error_density

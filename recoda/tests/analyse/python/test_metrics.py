@@ -18,7 +18,8 @@ from recoda.analyse.python.metrics import (
     project_readme_size,
     requirements_declared,
     license_type,
-    testlibrary_usage
+    testlibrary_usage,
+    error_density
 )
 
 
@@ -88,7 +89,6 @@ class TestLearnability(unittest.TestCase):
         # in a compiled distribution. We need to clean up potentially
         # created files.
         pkg_resources.cleanup_resources()
-
 
 class TestUnderstandability(unittest.TestCase):
     """ Test the functions measuring the understandability of code. """
@@ -270,7 +270,6 @@ class TestRequirementsDeclared(unittest.TestCase):
         # created files.
         pkg_resources.cleanup_resources()
 
-
 class TestOpenness(unittest.TestCase):
     """ Test the metric concerned with the licensing of projects """
 
@@ -339,6 +338,63 @@ class TestVerifiability(unittest.TestCase):
     def tearDown(self):
         """ Clean up the sandbox. """
         rmtree(self._test_sandbox, ignore_errors=True)
+        # pkg_resources.resources_filename cashes files, when
+        # in a compiled distribution. We need to clean up potentially
+        # created files.
+        pkg_resources.cleanup_resources()
+
+
+class TestCorrectness(unittest.TestCase):
+    """ Test the functions measuring the correctness of code. """
+
+    def setUp(self):
+        """ Set up mock project with documentation. """
+        self._tmp_base_folder = tempfile.mkdtemp()
+
+    def test_error_density(self):
+        """ See if we get expected error density measures.
+
+        Create test project inside the tmp folder.
+        Fill it with mock python files.
+        Measure the test project and compare to expected values.
+        """
+
+        with open(self._tmp_base_folder+"/half.py", 'w') as half_dense_file:
+            half_dense_file.write('# Not a Docstring')
+            half_dense_file.write('\n')
+            half_dense_file.write('return\n')
+
+        _half_error_dense_test = error_density(
+            self._tmp_base_folder
+        )
+        self.assertEqual(float(0.5), _half_error_dense_test)
+
+        with open(self._tmp_base_folder+"/none.py", 'w') as no_error_file:
+            no_error_file.write('"""DOCSTRING"""')
+            no_error_file.write('\n')
+            no_error_file.write('import os\n')
+
+        # The 0.5 and 1.0 compliance file should average together to 0.75
+        _half_plus_no_error_test = error_density(
+            self._tmp_base_folder
+        )
+        self.assertEqual(float(0.75), _half_plus_no_error_test)
+
+        with open(self._tmp_base_folder+"/error.py", 'w') as no_measure_file:
+            no_measure_file.write('""" I won\'t work with Python3. """')
+            no_measure_file.write('\n')
+            no_measure_file.write('print "error"\n')
+
+        # A parse error should yield us a None value for the whole project.
+        _none_output = error_density(
+            self._tmp_base_folder
+        )
+        self.assertIsNone(_none_output)
+
+
+    def tearDown(self):
+        """ Clean Up """
+        rmtree(self._tmp_base_folder)
         # pkg_resources.resources_filename cashes files, when
         # in a compiled distribution. We need to clean up potentially
         # created files.
