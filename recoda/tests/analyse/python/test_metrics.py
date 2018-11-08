@@ -162,7 +162,7 @@ class TestUnderstandability(unittest.TestCase):
             compliant_file.write('\n')
             compliant_file.write('import os\n')
 
-        # The 0.5 and 1.0 compliante file should average together to 0.75
+        # The 0.5 and 1.0 compliance file should average together to 0.75
         _half_plus_full_avg_compliant_test = average_standard_compliance(
             self._tmp_base_folder
         )
@@ -190,10 +190,11 @@ class TestRequirementsDeclared(unittest.TestCase):
 
     def test_score_from_requirements_file(self):
         """ Do we get a score when requirements are declared in the requirements.txt"""
-        
+
         # Test all requirements correctly declared
         with open(
-            '{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
+                '{}/{}'.format(self.test_sandbox, self.requirements_filename),
+                'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list))
 
@@ -204,13 +205,14 @@ class TestRequirementsDeclared(unittest.TestCase):
         )
 
         # Test requirements file with one missing dependency
-        with open('{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
+        with open(
+                '{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list[1:]))
 
-        _percentage_of_requirements_declared = float(
-            len(self.import_list) -1) / len(self.import_list
-        ) 
+        _percentage_of_requirements_declared = (
+            float(len(self.import_list) -1) / float(len(self.import_list))
+        )
         self.assertEqual(
             _percentage_of_requirements_declared,
             requirements_declared(self.test_sandbox)
@@ -222,34 +224,36 @@ class TestRequirementsDeclared(unittest.TestCase):
         There can be either no requirements.txt file or a file containing only a "."
         character. We test for both setups.
         """
-        _full_path='{dirname}/{filename}'
+        _full_path = '{dirname}/{filename}'
 
         _setup_mock_content = (
-        "from distutils.core import setup\n"
-        "setup(\n"
-        "    name='stub',\n"
-        "    install_requires=[\n"
-        "        {requirements}\n"
-        "    ]\n"
-        ")"
+            "from distutils.core import setup\n"
+            "setup(\n"
+            "    name='stub',\n"
+            "    install_requires=[\n"
+            "        {requirements}\n"
+            "    ]\n"
+            ")"
         )
 
-        _quoted_import_list=["\""+item+"\"" for item in self.import_list[1:]]
+        _quoted_import_list = ["\""+item+"\"" for item in self.import_list[1:]]
         _requirements_array_string = ',\n'.join(_quoted_import_list)
 
         # Test requirements file with one missing dependency
         with open(
-            _full_path.format(
-                dirname=self.test_sandbox,
-                filename='setup.py'),
-            'w'
+                _full_path.format(
+                    dirname=self.test_sandbox,
+                    filename='setup.py'),
+                'w'
         ) as requirements_mock_file:
             requirements_mock_file.write(
                 _setup_mock_content.format(
                     requirements=_requirements_array_string)
             )
 
-        _percentage_of_requirements_declared = float(len(self.import_list) -1) / float(len(self.import_list)) 
+        _percentage_of_requirements_declared = (
+            float(len(self.import_list) -1) / float(len(self.import_list))
+        )
         self.assertEqual(
             _percentage_of_requirements_declared,
             requirements_declared(self.test_sandbox)
@@ -329,7 +333,7 @@ class TestVerifiability(unittest.TestCase):
             _file.write('import os\n')
             _file.write('# Should we do something with unittest\n')
             _file.write('os.path.dirname(os.path.abspath(__file__))\n')
-  
+
         self.assertFalse(testlibrary_usage(self._test_sandbox))
 
     def tearDown(self):

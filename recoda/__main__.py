@@ -71,7 +71,8 @@ def parse_arguments() -> argparse.Namespace:
         type=int,
         help=(
             "Maximum number of processes run in parallel. "
-            "Number of actual processes run might be less, if the system does not have the ressources."
+            "Number of actual processes run might be less, "
+            "if the system does not have the ressources."
         ),
         choices=range(1, 200),
         metavar='1 to 200',

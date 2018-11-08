@@ -2,7 +2,7 @@
 
 """
 
-import re 
+import re
 
 from recoda.analyse.helpers import search_filename
 

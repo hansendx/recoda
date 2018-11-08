@@ -7,7 +7,7 @@ from subprocess import PIPE, Popen
 
 import astroid
 import numpy
-from recoda.analyse.helpers import search_filename
+from recoda.analyse.python.helpers import get_python_files
 
 TIMEOUT = 200
 
@@ -32,7 +32,7 @@ def average_comment_density(project_path) -> float:
                 With comment density for one file defined as CLOC/LOC.
     """
 
-    _file_paths = _get_python_files(project_path)
+    _file_paths = get_python_files(project_path)
 
     _comment_density_scores = []
     for _file_path in _file_paths:
@@ -61,7 +61,7 @@ def average_standard_compliance(project_path: str) -> float:
     :param project_path: Full path to the project to be measured.
     :returns:            Average standard compliance of all files
     """
-    _python_files = _get_python_files(project_path)
+    _python_files = get_python_files(project_path)
 
     _scores = list()
     for _file_path in _python_files:
@@ -220,18 +220,6 @@ def _get_docstring_lines(docstring_list: list) -> int:
 
     return len(_docstring_non_blank_lines)
 
-def _get_python_files(project_path: str) -> list:
-    """ Returns a list of all python files in a directory and its sub directories. """
-    _python_glob = "**/*.py"
-    _python_files = search_filename(
-        base_folder=project_path,
-        file_name=_python_glob,
-        recursive_flag=True
-    )
-
-    _files = [_file for _file in _python_files if os.path.isfile(_file)]
-
-    return _python_files
 
 def _get_docstrings(astroid_node: astroid.node_classes) -> list:
     """ Go through an astroid tree and get all docstrings.
