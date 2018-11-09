@@ -23,7 +23,7 @@ def packageability(project_path: str) -> int:
 
     _packageable_setup_files = []
     for _file in _setup_files:
-        _setup_file = open(_file, 'r')
+        _setup_file = open(_file+'/setup.py', 'r')
         _setup_node = astroid.parse(_setup_file.read())
         if _astroid_setup_search(_setup_node):
             _packageable_setup_files.append(1)
@@ -50,6 +50,36 @@ def requirements_declared(project_path: str) -> float:
             _correctly_declared_requirements_count = _correctly_declared_requirements_count - 1
 
     return float(_correctly_declared_requirements_count) / len(_implied_dependencies)
+
+def docker_setup(project_path: str) -> bool:
+    """ Tries to find evidence of a docker setup in the project. """
+    _file_names = ['[Dd]ockerfile', '[Dd]ocker-compose.yml']
+
+    for name in _file_names:
+        _findings = search_filename(
+            base_folder=project_path,
+            file_name=name,
+            recursive_flag=True
+        )
+        if _findings:
+            return True
+
+    return False
+
+def singularity_setup(project_path: str) -> bool:
+    """ Tries to find evidence of a singularity setup in the project. """
+    _file_names = ['[Ss]ingularity.*', '[Ss]ingularity']
+
+    for name in _file_names:
+        _findings = search_filename(
+            base_folder=project_path,
+            file_name=name,
+            recursive_flag=True
+        )
+        if _findings:
+            return True
+
+    return False
 
 def _get_requirements_from_file(path: str) -> set:
     """ Returns a list of requirements parsed from all requirements files insode a path.

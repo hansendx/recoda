@@ -19,7 +19,10 @@ from recoda.analyse.python.metrics import (
     requirements_declared,
     license_type,
     testlibrary_usage,
-    error_density
+    error_density,
+    docker_setup,
+    singularity_setup,
+    packageability
 )
 
 
@@ -176,24 +179,22 @@ class TestUnderstandability(unittest.TestCase):
         # created files.
         pkg_resources.cleanup_resources()
 
-class TestRequirementsDeclared(unittest.TestCase):
+class TestInstallability(unittest.TestCase):
     """ Test the functions for the installability metrics. """
 
     def setUp(self):
         """ Create a copy of this package to use it as test data. """
         _this_package = pkg_resources.resource_filename('recoda', '')
-        self.this_package_basename = os.path.basename(_this_package)
         self.test_sandbox = tempfile.mkdtemp()
-        self.requirements_filename = 'requirements.txt'
         self.import_list = pipreqs.get_all_imports(path=_this_package)
-        copytree(_this_package, self.test_sandbox+'/'+self.this_package_basename)
+        copytree(_this_package, self.test_sandbox+'/recoda')
 
-    def test_score_from_requirements_file(self):
+    def test_requirements_from_requirements_file(self):
         """ Do we get a score when requirements are declared in the requirements.txt"""
 
         # Test all requirements correctly declared
         with open(
-                '{}/{}'.format(self.test_sandbox, self.requirements_filename),
+                '{}/{}'.format(self.test_sandbox, 'requirements.txt'),
                 'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list))
@@ -206,7 +207,7 @@ class TestRequirementsDeclared(unittest.TestCase):
 
         # Test requirements file with one missing dependency
         with open(
-                '{}/{}'.format(self.test_sandbox, self.requirements_filename), 'w'
+                '{}/{}'.format(self.test_sandbox, 'requirements.txt'), 'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list[1:]))
 
@@ -218,7 +219,7 @@ class TestRequirementsDeclared(unittest.TestCase):
             requirements_declared(self.test_sandbox)
         )
 
-    def test_from_setup_script(self):
+    def test_requirements_from_setup_script(self):
         """ Do we get expected behavior, if requirements are in the setup.py
 
         There can be either no requirements.txt file or a file containing only a "."
@@ -259,6 +260,70 @@ class TestRequirementsDeclared(unittest.TestCase):
             requirements_declared(self.test_sandbox)
         )
 
+    def test_docker_setup_exists(self):
+        """ Can we docker recognize setup correctly? """
+        self.assertFalse(
+            docker_setup(project_path=self.test_sandbox)
+        )
+
+        # Does it work with a Dockerfile?
+        _docker_file_path = self.test_sandbox+'/Dockerfile'
+        with open(_docker_file_path, 'w') as dockerfile:
+            dockerfile.write('FROM python')
+
+        self.assertTrue(
+            docker_setup(project_path=self.test_sandbox)
+        )
+
+        # Does it work with a docker compose files?
+        os.remove(_docker_file_path)
+        with open(
+                self.test_sandbox+'/docker-compose.yml',
+                'w'
+            ) as compose_file:
+            compose_file.write('version: 3')
+
+        self.assertTrue(
+            docker_setup(project_path=self.test_sandbox)
+        )
+
+    def test_singularity_setup_exists(self):
+        """ Can we docker recognize setup correctly? """
+        self.assertFalse(
+            singularity_setup(project_path=self.test_sandbox)
+        )
+
+        # Does it work with a Dockerfile?
+        _singularity_file_path = self.test_sandbox+'/Singularity'
+        with open(_singularity_file_path, 'w') as singularity_file:
+            singularity_file.write('Bootstrap: docker')
+            singularity_file.write('From: python')
+
+        self.assertTrue(
+            singularity_setup(project_path=self.test_sandbox)
+        )
+
+        # Does it work with a docker compose files?
+        os.remove(_singularity_file_path)
+        with open(self.test_sandbox+'/Singularity.v1', 'w') as singularity_file:
+            singularity_file.write('Bootstrap: docker')
+            singularity_file.write('From: python')
+
+        self.assertTrue(
+            singularity_setup(project_path=self.test_sandbox)
+        )
+
+    def test_packageability(self):
+        """ Can we determine if a setup.py file is present? """
+        # There is no setup.py file yet.
+        self.assertFalse(packageability(self.test_sandbox))
+
+        copy(
+            self.test_sandbox+'/recoda/tests/data/mock_setup_py/setup_py',
+            self.test_sandbox+'/setup.py'
+            )
+
+        self.assertTrue(packageability(self.test_sandbox))
 
 
 
@@ -342,7 +407,6 @@ class TestVerifiability(unittest.TestCase):
         # in a compiled distribution. We need to clean up potentially
         # created files.
         pkg_resources.cleanup_resources()
-
 
 class TestCorrectness(unittest.TestCase):
     """ Test the functions measuring the correctness of code. """

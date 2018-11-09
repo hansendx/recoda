@@ -21,7 +21,10 @@ from recoda.analyse.independent import (
 
 # Installability related metrics.
 #packageability = _installability.packageability
+packageability = _installability.packageability
 requirements_declared = _installability.requirements_declared
+docker_setup = _installability.docker_setup
+singularity_setup = _installability.singularity_setup
 
 # Learnability related metrics.
 
