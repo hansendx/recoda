@@ -70,7 +70,10 @@ def _find_testlibrary_import(file_path: str) -> bool:
     """ Search a single file for the import of a test library. """
     # Multiprocessing gobbled up a lot of memory using with blocks.
     # So we handle files here directly.
-    _file_handler = open(file_path, 'r')
+    try:
+        _file_handler = open(file_path, 'r', encoding='ISO-8859-1')
+    except FileNotFoundError:
+        return None
 
     _grouped_library_strings = ["(?:"+ lib +")" for lib in PYTHON_TEST_LIBRARIES]
 

@@ -1,5 +1,6 @@
 """ Measures that concern themselves with the correctness of projects. """
 from subprocess import Popen, PIPE
+from typing import Union
 
 import numpy
 
@@ -24,12 +25,13 @@ def error_density(project_path: str) -> float:
         _score = _get_error_density(_file_path)
         if _score is None:
             return None
-        _scores.append(_score)
+        if _score is not False:
+            _scores.append(_score)
 
     return numpy.mean(_scores)
 
 
-def _get_error_density(_file_path: str) -> float:
+def _get_error_density(_file_path: str) -> Union[float, bool]:
     """ Get standard compliance for a singe file. """
 
     _process = Popen(
@@ -56,6 +58,9 @@ def _get_error_density(_file_path: str) -> float:
         _line_number = _line_number + 1
 
     _file.close()
+
+    if _line_number == 0:
+        return False
 
     _error_density = float(_errors / _line_number)
     # We have calculated the percentage of non-compliant lines,

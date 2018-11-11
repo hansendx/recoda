@@ -4,6 +4,7 @@ import os
 import re
 import tokenize
 from subprocess import PIPE, Popen
+from typing import Union
 
 import astroid
 import numpy
@@ -68,12 +69,13 @@ def average_standard_compliance(project_path: str) -> float:
         _score = _get_standard_compliance(_file_path)
         if _score is None:
             return None
-        _scores.append(_score)
+        if _score is not False:
+            _scores.append(_score)
 
     return numpy.mean(_scores)
 
 
-def _get_standard_compliance(_file_path: str) -> float:
+def _get_standard_compliance(_file_path: str) -> Union[float, bool]:
     """ Get standard compliance for a singe file. """
 
     _line_number = 0
@@ -81,8 +83,10 @@ def _get_standard_compliance(_file_path: str) -> float:
 
     for _ in _file.readlines():
         _line_number = _line_number + 1
-
     _file.close()
+
+    if _line_number == 0:
+        return
 
     _process = Popen(
         [
@@ -103,6 +107,9 @@ def _get_standard_compliance(_file_path: str) -> float:
 
     if _score is None:
         return None
+
+    if _line_number == 0:
+        return False
 
     _non_compliance = float(_score / _line_number)
     # We have calculated the percentage of non-compliant lines,
