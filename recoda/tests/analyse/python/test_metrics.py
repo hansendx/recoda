@@ -16,6 +16,7 @@ from recoda.analyse.python.metrics import (
     average_comment_density,
     average_standard_compliance,
     project_readme_size,
+    project_doc_size,
     requirements_declared,
     license_type,
     testlibrary_usage,
@@ -36,6 +37,11 @@ class TestLearnability(unittest.TestCase):
     def setUp(self):
         """ Set up mock project with documentation. """
         _tmp_base_folder = tempfile.mkdtemp()
+        self._measures = {
+            'doc_words': 0,
+            'readme_words': 0
+        }
+        self._readme_folder = ''
 
         _docs_measures_dict = {}
         # We cannot load all files from the test data directory.
@@ -46,7 +52,7 @@ class TestLearnability(unittest.TestCase):
         for _file in glob.glob(self._MOCK_DOCS_DIR+"/*[0-9]_[a-z]*"):
             # Filenames are in the Format
             # {correct measure}_{measured attribute}.{filetype to measure}
-            _measure_value = re.sub(r'^(\d+)_.*', r'\1', os.path.basename(_file))
+            _measure_value = int(re.sub(r'^(\d+)_.*', r'\1', os.path.basename(_file)))
             _measured_attribute = re.sub(r'^\d+_(\w+)\.\w+$', r'\1', os.path.basename(_file))
             _filetype = re.sub(r'^\d+_\w+\.(\w+)$', r'\1', os.path.basename(_file))
 
@@ -58,10 +64,11 @@ class TestLearnability(unittest.TestCase):
             if not os.path.exists(_mock_project_folder):
                 os.mkdir(_mock_project_folder)
 
-            if _measured_attribute not in _docs_measures_dict:
-                _docs_measures_dict[_measured_attribute] = {
-                    _measure_value: _mock_project_folder
-                }
+            self._measures['doc_words'] = self._measures['doc_words'] + _measure_value
+            if self._measures['readme_words'] < _measure_value:
+                self._readme_folder = _mock_project_folder
+                self._measures['readme_words'] = _measure_value
+
 
             # We copy the mock file to the test area.
             # The copy is named as it would be in a real project.
@@ -70,20 +77,30 @@ class TestLearnability(unittest.TestCase):
         self._tmp_base_folder = _tmp_base_folder
         self._docs_measures_dict = _docs_measures_dict
 
-    def test_readme_size(self):
+
+    def test_doc_size(self):
+        """ We want a function, that returns the word count of the for all possible doc files. """
+
+        _doc_size = project_doc_size(self._tmp_base_folder)
+
+        self.assertEqual(
+            int(self._measures['doc_words']),
+            _doc_size
+        )
+
+    def test_main_readme_size(self):
         """ We want a function, that returns the word count of the root README.
 
         It should not measure readme files in subfolders.
         The main, that explains the project should be at the root of it.
         """
 
-        _word_count_projects = self._docs_measures_dict['words']
+        _readme_size = project_readme_size(self._readme_folder)
 
-        for _measure, _folder in _word_count_projects.items():
-            self.assertEqual(
-                int(_measure),
-                project_readme_size(_folder)
-            )
+        self.assertEqual(
+            int(self._measures['readme_words']),
+            _readme_size
+        )
 
     def tearDown(self):
         """ Clean Up """

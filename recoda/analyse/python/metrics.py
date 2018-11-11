@@ -29,6 +29,7 @@ singularity_setup = _installability.singularity_setup
 # Learnability related metrics.
 
 project_readme_size = learnability.project_readme_size
+project_doc_size = learnability.project_doc_size
 flesch_reading_ease = learnability.flesch_reading_ease
 flesch_kincaid_grade = learnability.flesch_kincaid_grade
 

@@ -1,6 +1,8 @@
 """ Module to share commonly used functionality in the analyse package. """
 
 import glob
+import sys
+import os
 
 # To convert restructuredText to html
 from docutils.core import publish_string
@@ -44,7 +46,10 @@ def search_filename(
 def strip_text_from_html(html_content: str) -> str:
     """ Strips pure text from strings containing html. """
     _soup = BeautifulSoup(html_content, features="html.parser")
-    _text = _soup.get_text(separator=" ")
+    _text = ''
+    for _paragraph in _soup.find_all('p'):
+        _text = _text + " " + _paragraph.get_text(separator=' ')
+
     return _text
 
 def strip_text_from_md(markdown_content: str) -> str:
@@ -54,5 +59,14 @@ def strip_text_from_md(markdown_content: str) -> str:
 
 def strip_text_from_rst(rst_content: str) -> str:
     """ Strips pure text from strings containing RestructuredText. """
+    # publish string may spam a lot of errors so we pipe it to 
+    # /dev/null
+    _errors = sys.stderr
+    _dev_null = open(os.devnull, 'w')
+    sys.stderr = _dev_null
     _html_content = publish_string(rst_content, writer_name='html')
+    sys.stderr = _errors
+    _dev_null.close()
+    if not _html_content:
+        return ''
     return strip_text_from_html(_html_content)

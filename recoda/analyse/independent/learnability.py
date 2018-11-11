@@ -4,6 +4,8 @@ import os
 import re
 from textstat.textstat import textstat
 
+import numpy
+
 from recoda.analyse.helpers import (
     search_filename,
     strip_text_from_md,
@@ -28,29 +30,68 @@ def project_readme_size(project_path: str) -> int:
 
     return _words
 
+def project_doc_size(project_path: str) -> int:
+    """ Searches for standard doc files and measures their size. """
+
+    _doc_files = _get_doc_files(project_path)
+
+    if not _doc_files:
+        return 0
+
+    _words = 0
+
+    for _doc_file in _doc_files:
+        try:
+            _readme_string = _strip_text(_doc_file)
+            _words = _words + len(re.split(r'\s', _readme_string))
+        except:
+            continue
+
+    return _words
+
+
 def flesch_reading_ease(project_path: str) -> int:
     """ Calculates reading ease with textstat. """
     # Error rate in sillable
-    _doc_file = _get_main_readme(project_path)
+    _doc_files = _get_doc_files(project_path)
+    _scores = list()
 
-    try:
-        _readme_string = _strip_text(_doc_file)
-        return textstat.flesch_reading_ease(_readme_string)
-    except:
-        #TODO Find out the kind of exception textstat threw
-        return 0
+    if not _doc_files:
+        return None
+
+    for _doc_file in _doc_files:
+        try:
+            _readme_string = _strip_text(_doc_file)
+            _scores.append(textstat.flesch_reading_ease(_readme_string))
+        except:
+            continue
+
+    if not _scores:
+        return None
+
+    return numpy.mean(_scores)
+
 
 def flesch_kincaid_grade(project_path: str) -> int:
     """ Calculates readinch kincaid reading grade with textstat. """
     # Error rate in sillable
-    _doc_file = _get_main_readme(project_path)
+    _doc_files = _get_doc_files(project_path)
+    _scores = list()
 
-    try:
-        _readme_string = _strip_text(_doc_file)
-        return textstat.flesch_kincaid_grade(_readme_string)
-    except:
-        #TODO Find out the kind of exception textstat threw
-        return 0
+    if not _doc_files:
+        return None
+
+    for _doc_file in _doc_files:
+        try:
+            _readme_string = _strip_text(_doc_file)
+            _scores.append(textstat.flesch_kincaid_grade(_readme_string))
+        except:
+            continue
+
+    if not _scores:
+        return None
+
+    return numpy.mean(_scores)
 
 
 
@@ -83,6 +124,35 @@ def _get_main_readme(project_path: str) -> str:
 
     return _doc_file
 
+
+def _get_doc_files(project_path: str) -> str:
+    """ Searches for a projects main README file in the projects base. """
+    _doc_files_suffixes = ['.[Mm][Dd]', '.[Rr][Ss][Tt]' ]
+    _readme_files_suffixes = ['.[Tt][Xx][Tt]', '']
+    _doc_files = set()
+
+    for _suffix in _doc_files_suffixes:
+        _doc_files.update(
+            search_filename(
+                base_folder=project_path,
+                file_name="*"+_suffix,
+                recursive_flag=True
+            )
+        )
+    for _suffix in _readme_files_suffixes:
+        _doc_files.update(
+            search_filename(
+                base_folder=project_path,
+                file_name="[Rr][Ee][Aa][Dd][Mm][Ee]"+_suffix,
+                recursive_flag=True
+            )
+        )
+
+    if not _doc_files:
+        return None
+
+    return _doc_files
+
 def _strip_text(_doc_file: str) -> str:
     """ Determines filetype of Docfile and calls the strip function to call.
 
@@ -92,10 +162,13 @@ def _strip_text(_doc_file: str) -> str:
     _file_name_lowercased = os.path.basename(_doc_file).lower()
 
     _doc_string = ''
+    if not os.path.isfile(_doc_file):
+        return ""
+
     with open(_doc_file, 'r') as file:
-        if '.md' in _file_name_lowercased:
+        if re.match(r'^.*\.md$', _file_name_lowercased):
             _doc_string = strip_text_from_md(file.read())
-        elif '.rst' in _file_name_lowercased:
+        elif re.match(r'^.*\.rst$', _file_name_lowercased):
             _doc_string = strip_text_from_rst(file.read())
         else:
             _doc_string = file.read()
