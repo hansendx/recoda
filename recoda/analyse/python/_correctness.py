@@ -1,5 +1,6 @@
 """ Measures that concern themselves with the correctness of projects. """
 
+import re
 import warnings
 from subprocess import PIPE, Popen
 from typing import Union
@@ -58,10 +59,12 @@ def _get_error_density(_file_path: str) -> Union[float, bool]:
     if _errors is None:
         return None
 
-    _file = open(_file_path, 'r')
+    _file = open(_file_path, 'r', encoding='utf-8', errors='ignore')
 
     _line_number = 0
-    for _ in _file.readlines():
+    for _line in _file.readlines():
+        if re.match(r'^\s$', _line):
+            continue
         _line_number = _line_number + 1
 
     _file.close()

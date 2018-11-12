@@ -87,7 +87,7 @@ def _get_standard_compliance(_file_path: str) -> Union[float, bool]:
     """ Get standard compliance for a singe file. """
 
     _line_number = 0
-    _file = open(_file_path, 'r')
+    _file = open(_file_path, 'r', encoding='utf-8', errors='ignore')
 
     for _ in _file.readlines():
         _line_number = _line_number + 1
