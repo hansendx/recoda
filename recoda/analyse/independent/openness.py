@@ -32,10 +32,10 @@ def _get_license(licensee_output: dict) -> str:
 
     for _license_file in licensee_output['matched_files']:
         if _license_file['matched_license'] == 'NOASSERTION':
-            _license = 'unknown'
+            if not _license:
+                _license = 'unknown'
         elif _confidence < _license_file["matcher"]["confidence"]:
             _license = _license_file["matched_license"]
             _confidence = _license_file["matcher"]["confidence"]
 
     return _license
-
