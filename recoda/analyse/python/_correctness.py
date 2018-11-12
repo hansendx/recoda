@@ -1,9 +1,10 @@
 """ Measures that concern themselves with the correctness of projects. """
-from subprocess import Popen, PIPE
+
+import warnings
+from subprocess import PIPE, Popen
 from typing import Union
 
 import numpy
-
 from recoda.analyse.python.helpers import get_python_files
 
 
@@ -28,7 +29,13 @@ def error_density(project_path: str) -> float:
         if _score is not False:
             _scores.append(_score)
 
-    return numpy.mean(_scores)
+    with warnings.catch_warnings():
+        # This spams warnings when there is nothing to measure i.e.
+        # When we only have None to calculate a mean.
+        # A list only containing None values is expected and
+        # the warning superfluous.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return numpy.nanmean(_scores)
 
 
 def _get_error_density(_file_path: str) -> Union[float, bool]:

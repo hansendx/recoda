@@ -32,7 +32,9 @@ setup(
         # To measure code related metrics.
         "astroid==2.0.4",
         # Test for compliance and errors.
-        "pylint==2.1.1"
+        "pylint==2.1.1",
+        # Get requirements from imports
+        "pipreqs==0.4.9"
     ],
     keywords='science research engineering static analysis',
     classifiers=[

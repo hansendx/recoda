@@ -5,6 +5,7 @@ import re
 import tokenize
 from subprocess import PIPE, Popen
 from typing import Union
+import warnings
 
 import astroid
 import numpy
@@ -72,7 +73,14 @@ def average_standard_compliance(project_path: str) -> float:
         if _score is not False:
             _scores.append(_score)
 
-    return numpy.mean(_scores)
+    with warnings.catch_warnings():
+        # This spams warnings when there is nothing to measure i.e.
+        # When we only have None to calculate a mean.
+        # A list only containing None values is expected and
+        # the warning superfluous.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return numpy.nanmean(_scores)
+
 
 
 def _get_standard_compliance(_file_path: str) -> Union[float, bool]:

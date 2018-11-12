@@ -2,14 +2,13 @@
 
 import os
 import re
+import warnings
 
 import astroid
-from pipreqs import pipreqs
 import numpy
+from pipreqs import pipreqs
+from recoda.analyse.helpers import search_filename
 
-from recoda.analyse.helpers import (
-    search_filename
-)
 
 def packageability(project_path: str) -> int:
     """ Gives a score on the packageability of a python software project.
@@ -35,7 +34,14 @@ def packageability(project_path: str) -> int:
 
     if not _packageable_setup_files:
         return float(0)
-    return numpy.mean(_packageable_setup_files)
+
+    with warnings.catch_warnings():
+        # This spams warnings when there is nothing to measure i.e.
+        # When we only have None to calculate a mean.
+        # A list only containing None values is expected and
+        # the warning superfluous.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return numpy.nanmean(_packageable_setup_files)
 
 def requirements_declared(project_path: str) -> float:
     """ Calculates percentage of not declared dependencies. """

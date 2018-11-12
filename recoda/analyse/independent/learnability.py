@@ -2,15 +2,16 @@
 
 import os
 import re
-from textstat.textstat import textstat
+import warnings
 
 import numpy
-
 from recoda.analyse.helpers import (
     search_filename,
     strip_text_from_md,
     strip_text_from_rst
 )
+from textstat.textstat import textstat
+
 
 def project_readme_size(project_path: str) -> int:
     """ Searches for standard doc files and measures their size. """
@@ -23,7 +24,7 @@ def project_readme_size(project_path: str) -> int:
     _words = 0
 
     try:
-        _readme_string = _strip_text(_doc_file)
+        _readme_string = _strip_text(_doc_file).strip()
         _words = len(re.split(r'\s', _readme_string))
     except:
         return 0
@@ -42,7 +43,7 @@ def project_doc_size(project_path: str) -> int:
 
     for _doc_file in _doc_files:
         try:
-            _readme_string = _strip_text(_doc_file)
+            _readme_string = _strip_text(_doc_file).strip()
             _words = _words + len(re.split(r'\s', _readme_string))
         except:
             continue
@@ -69,7 +70,13 @@ def flesch_reading_ease(project_path: str) -> int:
     if not _scores:
         return None
 
-    return numpy.mean(_scores)
+    with warnings.catch_warnings():
+        # This spams warnings when there is nothing to measure i.e.
+        # When we only have None to calculate a mean.
+        # A list only containing None values is expected and
+        # the warning superfluous.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return numpy.nanmean(_scores)
 
 
 def flesch_kincaid_grade(project_path: str) -> int:
@@ -91,7 +98,13 @@ def flesch_kincaid_grade(project_path: str) -> int:
     if not _scores:
         return None
 
-    return numpy.mean(_scores)
+    with warnings.catch_warnings():
+        # This spams warnings when there is nothing to measure i.e.
+        # When we only have None to calculate a mean.
+        # A list only containing None values is expected and
+        # the warning superfluous.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return numpy.nanmean(_scores)
 
 
 
