@@ -11,7 +11,7 @@ def license_type(project_path: str) -> str:
         [
             "licensee",
             "detect",
-            "--confidence=70",
+            "--confidence=60",
             "--json",
             project_path
         ],
@@ -31,7 +31,9 @@ def _get_license(licensee_output: dict) -> str:
 
 
     for _license_file in licensee_output['matched_files']:
-        if _confidence < _license_file["matcher"]["confidence"]:
+        if _license_file['matched_license'] == 'NOASSERTION':
+            _license = 'unknown'
+        elif _confidence < _license_file["matcher"]["confidence"]:
             _license = _license_file["matched_license"]
             _confidence = _license_file["matcher"]["confidence"]
 
