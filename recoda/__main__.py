@@ -170,13 +170,14 @@ class MeasureProjects():
 
         _measurement_chunk = []
         for _projects_measured, _current_project_directory in enumerate(_directories):
+
+            print(_current_project_directory+':', _projects_measured+1, 'from', _projects, sep=' ')
             # Skip project, that are already measured.
             if _current_project_directory in self.projects_to_skip:
                 continue
             # TODO read existing file, get already measured projects and skip them.
 
             # TODO set up logger
-            print(_current_project_directory+':', _projects_measured+1, 'from', _projects, sep=' ')
             # A chunk element not only consist of the path to the project
             # but also the metrics dispatcher dict.
             # Multiprocessing does not function, when called from here directly.
@@ -285,9 +286,8 @@ def _get_already_measured_projects(file_path: str) -> list:
     if not os.path.isfile(path=file_path):
         return _already_measured_projects
 
-    _dataframe= pandas.DataFrame()
     with open(file_path, 'r') as csv_file:
-        _dataframe = pandas.DataFrame.read_csv(csv_file)
+        _dataframe = pandas.read_csv(csv_file)
 
     _already_measured_projects = _dataframe['id'].tolist()
 
