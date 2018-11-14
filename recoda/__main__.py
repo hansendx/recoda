@@ -98,18 +98,18 @@ class MeasureProjects():
     # Especially with growing measurements.
     # Maybe there is a better way to do this.
     _METRICS_DISPATCHER = {
-        'packageability': "packageability",
-        'flesch_reading_ease': "flesch_reading_ease",
-        'project_readme_size': "project_readme_size",
-        'project_doc_size': "project_doc_size",
-        'flesch_kincaid_grade': "flesch_kincaid_grade",
-        'average_comment_density': "average_comment_density",
+        #'packageability': "packageability",
+        #'flesch_reading_ease': "flesch_reading_ease",
+        #'project_readme_size': "project_readme_size",
+        #'project_doc_size': "project_doc_size",
+        #'flesch_kincaid_grade': "flesch_kincaid_grade",
+        #'average_comment_density': "average_comment_density",
         'average_standard_compliance': "average_standard_compliance",
-        'license_type': "license_type",
-        'testlibrary_usage': "testlibrary_usage",
-        'error_density': "error_density",
-        'docker_setup': "docker_setup",
-        'singularity_setup': "singularity_setup"
+        #'license_type': "license_type",
+        #'testlibrary_usage': "testlibrary_usage",
+        #'error_density': "error_density",
+        #'docker_setup': "docker_setup",
+        #'singularity_setup': "singularity_setup"
     }
 
     _LANGUAGE_DISPATCHER = {
@@ -121,11 +121,13 @@ class MeasureProjects():
             self,
             project_measure_handler,
             language: str,
-            multiprocessing_chunk_size: int = 5
+            multiprocessing_chunk_size: int = 5,
+            projects_to_skip: list = []
         ):
         self.project_handler = project_measure_handler
         self.metrics = self._LANGUAGE_DISPATCHER[language]
         self._multiprocessing_chunk_size = multiprocessing_chunk_size
+        self.projects_to_skip = projects_to_skip
 
         # We set ids "measure function" to string, so we can
         # send all fields through the function dispatcher.
@@ -168,6 +170,9 @@ class MeasureProjects():
 
         _measurement_chunk = []
         for _projects_measured, _current_project_directory in enumerate(_directories):
+            # Skip project, that are already measured.
+            if _current_project_directory in self.projects_to_skip:
+                continue
             # TODO read existing file, get already measured projects and skip them.
 
             # TODO set up logger
@@ -253,11 +258,14 @@ def _main():
     else:
         raise ValueError('Project type not supported.')
 
+    _already_measured = _get_already_measured_projects(_arguments.file_output)
+
 
     _measurement_object = MeasureProjects(
         project_measure_handler=_handler,
         language=_arguments.language,
-        multiprocessing_chunk_size=_arguments.processes
+        multiprocessing_chunk_size=_arguments.processes,
+        projects_to_skip=_already_measured
         )
     _measurement_generator = _measurement_object.measure()
 
@@ -270,7 +278,20 @@ def _main():
         with open(_arguments.file_output, 'a') as fileout:
             _dataframe.to_csv(fileout, header=False)
 
+def _get_already_measured_projects(file_path: str) -> list:
+    """ Parse file output if exist and get projects already measured. """
+    _already_measured_projects = list()
 
+    if not os.path.isfile(path=file_path):
+        return _already_measured_projects
+
+    _dataframe= pandas.DataFrame()
+    with open(file_path, 'r') as csv_file:
+        _dataframe = pandas.DataFrame.read_csv(csv_file)
+
+    _already_measured_projects = _dataframe['id'].tolist()
+
+    return _already_measured_projects
 
 if __name__ == '__main__':
     _main()
