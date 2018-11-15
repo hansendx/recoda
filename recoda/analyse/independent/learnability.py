@@ -50,11 +50,30 @@ def project_doc_size(project_path: str) -> int:
 
     return _words
 
+def readme_flesch_reading_ease(project_path: str) -> int:
+    """ Calls flesch_reading_ease with full_docs = False """
+    return flesch_reading_ease(project_path=project_path, full_docs = False)
 
-def flesch_reading_ease(project_path: str) -> int:
-    """ Calculates reading ease with textstat. """
+def readme_flesch_kincaid_grade(project_path: str) -> int:
+    """ Calls flesch_kincaid_grade with full_docs = False """
+    return flesch_kincaid_grade(project_path=project_path, full_docs = False)
+
+
+def flesch_reading_ease(project_path: str, full_docs: bool = True) -> int:
+    """ Calculates reading ease with textstat.
+    
+    The true reading ease will possibly be overestimated.
+    textstat sillable count is not a 100% accurate.
+    This is because lower sillable words are judged as more
+    readable and textstat uses Pyphen, which hiphenates
+    some words with less hyphens than their true sillable count.
+    """
     # Error rate in sillable
-    _doc_files = _get_doc_files(project_path)
+    if full_docs:
+        _doc_files = _get_doc_files(project_path)
+    else:
+        _doc_files = [_get_main_readme(project_path)]
+
     _scores = list()
 
     if not _doc_files:
@@ -79,10 +98,20 @@ def flesch_reading_ease(project_path: str) -> int:
         return numpy.nanmean(_scores)
 
 
-def flesch_kincaid_grade(project_path: str) -> int:
-    """ Calculates readinch kincaid reading grade with textstat. """
+def flesch_kincaid_grade(project_path: str, full_docs: bool = True) -> int:
+    """ Calculates readinch kincaid reading grade with textstat.
+    
+    The true grade level will possibly be underestimated.
+    textstat sillable count is not a 100% accurate.
+    This is because lower sillable words are judged as more
+    readable and textstat uses Pyphen, which hiphenates
+    some words with less hyphens than their true sillable count.
+    """
     # Error rate in sillable
-    _doc_files = _get_doc_files(project_path)
+    if full_docs:
+        _doc_files = _get_doc_files(project_path)
+    else:
+        _doc_files = [_get_main_readme(project_path)]
     _scores = list()
 
     if not _doc_files:
@@ -138,7 +167,7 @@ def _get_main_readme(project_path: str) -> str:
     return _doc_file
 
 
-def _get_doc_files(project_path: str) -> str:
+def _get_doc_files(project_path: str) -> list:
     """ Searches for a projects main README file in the projects base. """
     _doc_files_suffixes = ['.[Mm][Dd]', '.[Rr][Ss][Tt]' ]
     _readme_files_suffixes = ['.[Tt][Xx][Tt]', '']
