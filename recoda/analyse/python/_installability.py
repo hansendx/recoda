@@ -22,7 +22,7 @@ def packageability(project_path: str) -> int:
 
     _packageable_setup_files = []
     for _file in _setup_files:
-        _setup_file = open(_file+'/setup.py', 'r')
+        _setup_file = open(_file+'/setup.py', 'r', encoding='utf-8', errors='replace')
         try:
             _setup_node = astroid.parse(_setup_file.read())
         except astroid.exceptions.AstroidSyntaxError:
@@ -31,6 +31,7 @@ def packageability(project_path: str) -> int:
             _packageable_setup_files.append(1)
         else:
             _packageable_setup_files.append(0)
+        _setup_file.close()
 
     if not _packageable_setup_files:
         return float(0)
