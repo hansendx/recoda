@@ -98,18 +98,20 @@ class MeasureProjects():
     # Especially with growing measurements.
     # Maybe there is a better way to do this.
     _METRICS_DISPATCHER = {
-        #'packageability': "packageability",
-        #'flesch_reading_ease': "flesch_reading_ease",
-        #'project_readme_size': "project_readme_size",
-        #'project_doc_size': "project_doc_size",
-        #'flesch_kincaid_grade': "flesch_kincaid_grade",
-        #'average_comment_density': "average_comment_density",
-        'average_standard_compliance': "average_standard_compliance",
-        #'license_type': "license_type",
-        #'testlibrary_usage': "testlibrary_usage",
-        #'error_density': "error_density",
-        #'docker_setup': "docker_setup",
-        #'singularity_setup': "singularity_setup"
+        'packageability': "packageability",
+        'flesch_reading_ease': "flesch_reading_ease",
+        'readme_flesch_reading_ease': "readme_flesch_reading_ease",
+        'project_readme_size': "project_readme_size",
+        'project_doc_size': "project_doc_size",
+        'flesch_kincaid_grade': "flesch_kincaid_grade",
+        'readme_flesch_kincaid_grade': "readme_flesch_kincaid_grade",
+        'average_comment_density': "average_comment_density",
+        'standard_compliance': "standard_compliance",
+        'license_type': "license_type",
+        'testlibrary_usage': "testlibrary_usage",
+        'error_density': "error_density",
+        'docker_setup': "docker_setup",
+        'singularity_setup': "singularity_setup"
     }
 
     _LANGUAGE_DISPATCHER = {
