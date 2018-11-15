@@ -2,12 +2,18 @@
 
 import re
 import warnings
+from io import StringIO
 from subprocess import PIPE, Popen
 from typing import Union
 
 import numpy
+from pyflakes.api import checkPath
+from pyflakes.reporter import Reporter
 from recoda.analyse.python.helpers import get_python_files
 
+def project_errors(project_path:str) -> int:
+    """ Get all errors pylint finds for a project. """
+    pass
 
 def error_density(project_path: str) -> float:
     """ Get the average of the error density for every file.
@@ -26,7 +32,8 @@ def error_density(project_path: str) -> float:
     for _file_path in _python_files:
         _score = _get_error_density(_file_path)
         if _score is None:
-            return None
+            continue
+            #return None
         if _score is not False:
             _scores.append(_score)
 
@@ -42,19 +49,35 @@ def error_density(project_path: str) -> float:
 def _get_error_density(_file_path: str) -> Union[float, bool]:
     """ Get standard compliance for a singe file. """
 
-    _process = Popen(
-        [
-            'pylint',
-            '-s',
-            'n',
-            '--errors-only',
-            "--msg-template='{msg_id}'",
-            _file_path
-        ],
-        stdout=PIPE
-    )
-    _output = _process.communicate()
-    _errors = _parse_pylint_output(_output[0].decode("utf-8"))
+    _output_handler = StringIO()
+    _error_handler = StringIO()
+    _pyflake_reporter = Reporter(_output_handler, _error_handler)
+
+
+    _check_result = checkPath(_file_path, _pyflake_reporter)
+
+    _error_handler.close()
+    _error_handler = None
+
+    _error_string = _output_handler.getvalue()
+    # We will just have an empty string 
+    # if pyflakes outputs nothing i.e.
+    # if we have no errors.
+    if _error_string:
+        # We use strip to not get empty strings
+        # at the start or end
+        # when we split the lines on \n.
+        _error_lines = _error_string.strip().split('\n')
+        _errors = len(_error_lines)
+    else:
+        _errors = 0
+
+    # Clean up space
+    _output_handler.close()
+    _output_handler = None
+    _error_lines = None
+    _pyflake_reporter = None
+
 
     if _errors is None:
         return None
