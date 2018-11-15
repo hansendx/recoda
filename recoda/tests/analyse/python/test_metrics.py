@@ -14,7 +14,7 @@ import pkg_resources
 from pipreqs import pipreqs
 from recoda.analyse.python.metrics import (
     average_comment_density,
-    average_standard_compliance,
+    standard_compliance,
     project_readme_size,
     project_doc_size,
     requirements_declared,
@@ -170,9 +170,9 @@ class TestUnderstandability(unittest.TestCase):
         with open(self._tmp_base_folder+"/half.py", 'w') as half_compliant_file:
             half_compliant_file.write('# Not a Docstring')
             half_compliant_file.write('\n')
-            half_compliant_file.write('import os\n')
+            half_compliant_file.write('import os # Bad Inline Comment\n')
 
-        _half_compliant_test = average_standard_compliance(
+        _half_compliant_test = standard_compliance(
             self._tmp_base_folder
         )
         self.assertEqual(float(0.5), _half_compliant_test)
@@ -183,7 +183,7 @@ class TestUnderstandability(unittest.TestCase):
             compliant_file.write('import os\n')
 
         # The 0.5 and 1.0 compliance file should average together to 0.75
-        _half_plus_full_avg_compliant_test = average_standard_compliance(
+        _half_plus_full_avg_compliant_test = standard_compliance(
             self._tmp_base_folder
         )
         self.assertEqual(float(0.75), _half_plus_full_avg_compliant_test)
@@ -453,24 +453,13 @@ class TestCorrectness(unittest.TestCase):
         with open(self._tmp_base_folder+"/none.py", 'w') as no_error_file:
             no_error_file.write('"""DOCSTRING"""')
             no_error_file.write('\n')
-            no_error_file.write('import os\n')
+            no_error_file.write('VALUE = 1\n')
 
         # The 0.5 and 1.0 compliance file should average together to 0.75
         _half_plus_no_error_test = error_density(
             self._tmp_base_folder
         )
         self.assertEqual(float(0.75), _half_plus_no_error_test)
-
-        with open(self._tmp_base_folder+"/error.py", 'w') as no_measure_file:
-            no_measure_file.write('""" I won\'t work with Python3. """')
-            no_measure_file.write('\n')
-            no_measure_file.write('print "error"\n')
-
-        # A parse error should yield us a None value for the whole project.
-        _none_output = error_density(
-            self._tmp_base_folder
-        )
-        self.assertIsNone(_none_output)
 
 
     def tearDown(self):

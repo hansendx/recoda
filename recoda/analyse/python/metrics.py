@@ -32,11 +32,13 @@ project_readme_size = learnability.project_readme_size
 project_doc_size = learnability.project_doc_size
 flesch_reading_ease = learnability.flesch_reading_ease
 flesch_kincaid_grade = learnability.flesch_kincaid_grade
+readme_flesch_reading_ease = learnability.readme_flesch_reading_ease
+readme_flesch_kincaid_grade = learnability.readme_flesch_kincaid_grade
 
 # Understandability related metrics.
 
 average_comment_density = _understandability.average_comment_density
-average_standard_compliance = _understandability.average_standard_compliance
+standard_compliance = _understandability.standard_compliance
 
 # Openness related metrics.
 

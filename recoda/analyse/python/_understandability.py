@@ -10,6 +10,7 @@ import warnings
 import astroid
 import numpy
 from recoda.analyse.python.helpers import get_python_files
+import pycodestyle
 
 TIMEOUT = 200
 
@@ -53,7 +54,7 @@ def average_comment_density(project_path) -> float:
         return float(_sum_scores / _group_size)
     return None
 
-def average_standard_compliance(project_path: str) -> float:
+def standard_compliance(project_path: str) -> float:
     """ Get the average of the standard compliance density for every file.
 
     Count the style offences of all python files
@@ -65,84 +66,20 @@ def average_standard_compliance(project_path: str) -> float:
     """
     _python_files = get_python_files(project_path)
 
-    _scores = list()
-    for _file_path in _python_files:
-        _score = _get_standard_compliance(_file_path)
-        if _score is None:
-            return None
-        if _score is not False:
-            _scores.append(_score)
+    _style_checker = pycodestyle.StyleGuide(quiet=True)
 
-    with warnings.catch_warnings():
-        # This spams warnings when there is nothing to measure i.e.
-        # When we only have None to calculate a mean.
-        # A list only containing None values is expected and
-        # the warning superfluous.
-        warnings.simplefilter("ignore", category=RuntimeWarning)
-        return numpy.nanmean(_scores)
+    _style_results = _style_checker.check_files(_python_files)
 
+    _lines = _style_results.counters['physical lines']
+    _style_errors = 0
 
+    for key, value in _style_results.counters.items():
+        if key[:1] in ['E', 'W']:
+            _style_errors = _style_errors + value
 
-def _get_standard_compliance(_file_path: str) -> Union[float, bool]:
-    """ Get standard compliance for a singe file. """
-
-    _line_number = 0
-    _file = open(_file_path, 'r', encoding='utf-8', errors='ignore')
-
-    for _ in _file.readlines():
-        _line_number = _line_number + 1
-    _file.close()
-
-    if _line_number == 0:
-        return
-
-    _process = Popen(
-        [
-            'pylint',
-            '-s',
-            'n',
-            '--disable=all',
-            '--enable=C',
-            '--enable=F',
-            '--enable=E0001',
-            "--msg-template='{C}'",
-            _file_path
-        ],
-        stdout=PIPE
-    )
-    _output = _process.communicate()
-    _score = _parse_pylint_output(_output[0].decode("utf-8"))
-
-    if _score is None:
-        return None
-
-    if _line_number == 0:
-        return False
-
-    _non_compliance = float(_score / _line_number)
-    # We have calculated the percentage of non-compliant lines,
-    # we want the percentage of the compliant lines.
-    return float(1 - _non_compliance)
-
-def _parse_pylint_output(_pylint_output: str) -> int:
-    """ Parse pylint string and count Convention messages. """
-    _convention_error = 0
-    # We expect to get a consecutive string with \n between messages
-    _message_list = _pylint_output.split('\n')
-    for message in _message_list:
-        if message in ('E', 'F'):
-            # A python syntax error will block all other errors.
-            # We cannot use this, it would suppress the convention errors,
-            # giving this file a perfect score.
-            # This could come form a legit error
-            # or from py3 incompatibility.
-            return None
-        if message == 'C':
-            _convention_error = _convention_error + 1
-
-    return _convention_error
-
-
+    if _lines > 0:
+        return 1 - float(_style_errors) / float(_lines)
+    return 0
 
 def _get_comment_density(_file_path):
     """ Get the comment density for a single file. """
@@ -177,7 +114,7 @@ def _get_comment_density(_file_path):
         # We let open() replace problem characters, since we only count lines.
         _astroid_node = astroid.parse(_file_string)
         _file_string = None
-    except astroid.exceptions.AstroidSyntaxError:
+    except (astroid.exceptions.AstroidSyntaxError, AttributeError):
         _file_string = None
         return None
 
