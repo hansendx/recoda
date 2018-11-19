@@ -82,6 +82,8 @@ def flesch_reading_ease(project_path: str, full_docs: bool = True) -> int:
     for _doc_file in _doc_files:
         try:
             _readme_string = _strip_text(_doc_file)
+            if not _readme_string:
+                continue
             _scores.append(textstat.flesch_reading_ease(_readme_string))
         except:
             continue
@@ -120,6 +122,8 @@ def flesch_kincaid_grade(project_path: str, full_docs: bool = True) -> int:
     for _doc_file in _doc_files:
         try:
             _readme_string = _strip_text(_doc_file)
+            if not _readme_string:
+                continue
             _scores.append(textstat.flesch_kincaid_grade(_readme_string))
         except:
             continue
