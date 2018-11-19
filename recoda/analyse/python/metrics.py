@@ -2,10 +2,11 @@
 """
 
 from recoda.analyse.python import (
+    _general,
     _installability,
     _understandability,
     _verifiability,
-    _correctness
+    _correctness,
 )
 
 from recoda.analyse.independent import (
@@ -49,3 +50,8 @@ testlibrary_usage = _verifiability.testlibrary_usage
 # Correctness related metrics.
 
 error_density = _correctness.error_density
+
+
+# General
+
+loc = _general.count_loc
