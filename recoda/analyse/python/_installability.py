@@ -1,8 +1,12 @@
 """ All metrics measuring th installability subfactor. """
 
+import ast
 import os
 import re
+import tempfile
 import warnings
+
+from setuptools import find_namespace_packages
 
 import astroid
 import numpy
@@ -18,12 +22,13 @@ def packageability(project_path: str) -> int:
     :param project: Represents a software Project somewhere in local storage.
     :returns:       A score on a projects packageability.
     """
-    _setup_files = _get_setup_locations(project_path)
+    _setup_file_folders = _get_setup_locations(project_path)
 
     _packageable_setup_files = []
-    for _file in _setup_files:
+    for _folder in _setup_file_folders:
+        _file = _folder+'/setup.py'
         if os.path.isfile(_file):
-            _setup_file = open(_file+'/setup.py', 'r', encoding='utf-8', errors='replace')
+            _setup_file = open(_file, 'r', encoding='utf-8', errors='replace')
         else:
             continue
 
@@ -52,15 +57,7 @@ def requirements_declared(project_path: str) -> float:
     """ Calculates percentage of not declared dependencies. """
     _declared_requirements = _get_requirements_from_file(path=project_path)
     _setup_requirements = _get_requirements_from_setup(path=project_path)
-    try:
-        _implied_dependencies = (
-            pipreqs.get_all_imports(
-                path=project_path,
-                encoding='utf-8'
-            )
-        )
-    except (SyntaxError, IOError, ValueError):
-        return None
+    _implied_dependencies = _get_implied_dependencies(path=project_path)
     # We cannot calculate a percentage for declared dependencies,
     # if there are no dependencies through imports.
     if not _implied_dependencies:
@@ -135,13 +132,73 @@ def _get_requirements_from_setup(path: str) -> str:
     if not _setup_file_locations:
         return ''
     _setup_files = [path+'/setup.py' for path in _setup_file_locations]
-    _requirements = ""
+    _requirements = list()
     for _setup_file in _setup_files:
         _parsed_requirements = _astroid_parse_setup(_setup_file)
         if _parsed_requirements:
             _requirements = _requirements + _parsed_requirements
 
     return _requirements
+
+def _get_implied_dependencies(path: str) -> list:
+    _dependencies=list()
+    _python_files = search_filename(
+        base_folder=path,
+        file_name="**/*.py",
+        recursive_flag=True
+    )
+
+    _tmp_project_path = tempfile.mkdtemp()
+    _tmp_file_path = _tmp_project_path + "/dependencies.py"
+    _tmp_file = open(_tmp_file_path, 'w')
+    for file in _python_files:
+        for _import in _get_imports(file):
+            _tmp_file.write(_import+'\n')
+    _tmp_file.close()
+
+
+    _all_imports = pipreqs.get_all_imports(
+        path=_tmp_project_path,
+        encoding='utf-8'
+    )
+
+
+    # Clean up tmp folder
+    if os.path.isfile(_tmp_file_path):
+        os.remove(_tmp_file_path)
+    if os.path.isdir(_tmp_project_path):
+        os.rmdir(_tmp_project_path)
+
+    _imports = _remove_local_dependencies(path, _all_imports)
+
+    return pipreqs.get_pkg_names(_imports)
+
+def _remove_local_dependencies(path:str, _all_imports):
+
+    _local_imports = find_namespace_packages(where=path)
+
+    _cleaned_imports = list()
+
+    for _import in _all_imports:
+        if _import not in _local_imports:
+            _cleaned_imports.append(_import)
+
+    _all_imports = None
+        
+    return _cleaned_imports
+
+def _get_imports(file_path: str) -> list:
+    """ Parse all import statements form a file. """
+    _import_regex = r'(?m)^\s*((?:from\s+\S+\s+){0,1}import(?:(?:\s+(?:[\w\d_-])+(?:[\s,])*)|(?:\s*\([\s,#\w\d_-]*\))|(?:\s*[\s,#\w\d_-]*)))\s*(?:#.*){0,1}$'
+
+    _file = open(file_path, 'r')
+    _file_string = _file.read()
+    _file.close()
+
+    _import_matches = re.findall(_import_regex, _file_string)
+
+    return _import_matches
+
 
 def _astroid_parse_setup(path: str) -> str:
     """ Extract requirements out of the setup call in a setup.py
@@ -159,14 +216,28 @@ def _astroid_parse_setup(path: str) -> str:
         _setup_parse_tree = astroid.parse(_setup_content)
     except astroid.exceptions.AstroidSyntaxError:
         return None
-    _requirements_regex = r'.*install_requires=\[(.*?)\].*'
+    _requirements_regex = r'.*install_requires=(\[.*?\]).*'
     _requirement_string = ''
+    _requirement_list = list()
     for _setup in _astroid_setup_search(_setup_parse_tree): 
-        _requirement_string = _requirement_string + re.sub(
-            _requirements_regex, r'\1',
+        _requirement_string = re.sub(
+            _requirements_regex,
+            r'\1',
             _setup
         )
-    return _requirement_string
+        _requirement_list = _requirement_list + ast.literal_eval(_requirement_string)
+    return _requirement_list
+
+def _clean_reqirements_entries(requirements_list: list) -> list:
+    """ Remove version information from a list with requirement strings. """
+
+    _entry_regex = r'^(.*?)/s*[;><=].*$'
+
+    for index, entry in enumerate(requirements_list):
+        requirements_list[index] = re.sub(_entry_regex, r'\1', entry)
+
+    return requirements_list
+
 
 def _astroid_setup_search(node: astroid.nodes) -> list:
     """ Search for the setup function calls in a astroid tree recursively.

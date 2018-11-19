@@ -202,8 +202,13 @@ class TestInstallability(unittest.TestCase):
     def setUp(self):
         """ Create a copy of this package to use it as test data. """
         _this_package = pkg_resources.resource_filename('recoda', '')
+        _this_package = pkg_resources.resource_filename('recoda', '')
         self.test_sandbox = tempfile.mkdtemp()
-        self.import_list = pipreqs.get_all_imports(path=_this_package)
+        self.import_list = pipreqs.get_pkg_names(
+            pipreqs.get_all_imports(path=_this_package)
+        )
+        # The above call to pipreqs always misses GitPython
+        self.import_list.append("GitPython")
         copytree(_this_package, self.test_sandbox+'/recoda')
 
     def test_requirements_from_requirements_file(self):
@@ -215,6 +220,13 @@ class TestInstallability(unittest.TestCase):
                 'w'
         ) as requirements_mock_file:
             requirements_mock_file.write('\n'.join(self.import_list))
+
+
+        copy(
+            self.test_sandbox+'/recoda/tests/data/mock_setup_py/setup_py',
+            self.test_sandbox+'/setup.py'
+        )
+
 
         # All requirements declared should yield 100% i.e. 1
         self.assertEqual(
@@ -236,6 +248,8 @@ class TestInstallability(unittest.TestCase):
             requirements_declared(self.test_sandbox)
         )
 
+        os.remove(self.test_sandbox+'/setup.py')
+
     def test_requirements_from_setup_script(self):
         """ Do we get expected behavior, if requirements are in the setup.py
 
@@ -247,7 +261,7 @@ class TestInstallability(unittest.TestCase):
         _setup_mock_content = (
             "from distutils.core import setup\n"
             "setup(\n"
-            "    name='stub',\n"
+            "    name='ReCoda',\n"
             "    install_requires=[\n"
             "        {requirements}\n"
             "    ]\n"
