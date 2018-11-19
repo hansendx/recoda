@@ -1,5 +1,6 @@
 """ Measures that concern themselves with the correctness of projects. """
 
+import os
 import re
 import warnings
 from io import StringIO
@@ -30,7 +31,10 @@ def error_density(project_path: str) -> float:
 
     _scores = list()
     for _file_path in _python_files:
-        _score = _get_error_density(_file_path)
+        if os.path.isfile(_file_path):
+            _score = _get_error_density(_file_path)
+        else:
+            _score = None
         if _score is None:
             continue
             #return None

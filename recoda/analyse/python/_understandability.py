@@ -125,7 +125,10 @@ def _get_comment_density(_file_path):
     # tokenize, used to identify # comments,
     # only uses objects with readline function.
     # This means we cannot reuse the string already read.
-    _single_comments = _get_single_comments(_file_path)
+    if os.path.isfile(_file_path):
+        _single_comments = _get_single_comments(_file_path)
+    else:
+        return None
 
     _commented_lines_of_code = _single_comments + _multiline_comments
 
