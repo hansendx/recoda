@@ -22,7 +22,11 @@ def packageability(project_path: str) -> int:
 
     _packageable_setup_files = []
     for _file in _setup_files:
-        _setup_file = open(_file+'/setup.py', 'r', encoding='utf-8', errors='replace')
+        if os.path.isfile(_file):
+            _setup_file = open(_file+'/setup.py', 'r', encoding='utf-8', errors='replace')
+        else:
+            continue
+
         try:
             _setup_node = astroid.parse(_setup_file.read())
         except astroid.exceptions.AstroidSyntaxError:
@@ -48,7 +52,15 @@ def requirements_declared(project_path: str) -> float:
     """ Calculates percentage of not declared dependencies. """
     _declared_requirements = _get_requirements_from_file(path=project_path)
     _setup_requirements = _get_requirements_from_setup(path=project_path)
-    _implied_dependencies = pipreqs.get_all_imports(path=project_path)
+    try:
+        _implied_dependencies = (
+            pipreqs.get_all_imports(
+                path=project_path,
+                encoding='utf-8'
+            )
+        )
+    except (SyntaxError, IOError, ValueError):
+        return None
     # We cannot calculate a percentage for declared dependencies,
     # if there are no dependencies through imports.
     if not _implied_dependencies:
@@ -125,7 +137,9 @@ def _get_requirements_from_setup(path: str) -> str:
     _setup_files = [path+'/setup.py' for path in _setup_file_locations]
     _requirements = ""
     for _setup_file in _setup_files:
-        _requirements = _requirements + _astroid_parse_setup(_setup_file)
+        _parsed_requirements = _astroid_parse_setup(_setup_file)
+        if _parsed_requirements:
+            _requirements = _requirements + _parsed_requirements
 
     return _requirements
 
@@ -141,7 +155,10 @@ def _astroid_parse_setup(path: str) -> str:
     _setup_file = open(path)
     _setup_content = _setup_file.read()
     _setup_file.close()
-    _setup_parse_tree = astroid.parse(_setup_content)
+    try:
+        _setup_parse_tree = astroid.parse(_setup_content)
+    except astroid.exceptions.AstroidSyntaxError:
+        return None
     _requirements_regex = r'.*install_requires=\[(.*?)\].*'
     _requirement_string = ''
     for _setup in _astroid_setup_search(_setup_parse_tree): 

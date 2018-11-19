@@ -2,6 +2,7 @@
 
 """
 
+import os
 import re
 
 from recoda.analyse.helpers import search_filename
@@ -59,12 +60,15 @@ def testlibrary_usage(project_path: str) -> bool:
         file_name='*.py'
     )
 
+    _test_exists = False
+
     for _file_path in _python_script_files:
-        _test_exists = _find_testlibrary_import(file_path=_file_path)
+        if os.path.isfile(_file_path):
+            _test_exists = _find_testlibrary_import(file_path=_file_path)
         if _test_exists:
             return True
 
-    return False
+    return _test_exists
 
 def _find_testlibrary_import(file_path: str) -> bool:
     """ Search a single file for the import of a test library. """
