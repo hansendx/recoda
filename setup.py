@@ -32,7 +32,8 @@ setup(
         # To measure code related metrics.
         "astroid==2.0.4",
         # Test for compliance and errors.
-        "pylint==2.1.1",
+        "pycodestyle==2.3.1",
+        "pyflakes==1.6.0", 
         # Get requirements from imports
         "pipreqs==0.4.9"
     ],
