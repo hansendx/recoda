@@ -12,7 +12,10 @@ def license_type(project_path: str) -> str:
         [
             "licensee",
             "detect",
-            "--confidence=60",
+            # This is the default convidence value,
+            # but its value is reiterated here
+            # since it is somewhat hidden in the docs.
+            "--confidence=98",
             "--json",
             project_path
         ],
