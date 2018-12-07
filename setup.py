@@ -35,7 +35,9 @@ setup(
         "pycodestyle==2.3.1",
         "pyflakes==1.6.0", 
         # Get requirements from imports
-        "pipreqs==0.4.9"
+        "pipreqs==0.4.9",
+        # Type hints
+        "typing >= 3.6.6"
     ],
     keywords='science research engineering static analysis',
     classifiers=[
