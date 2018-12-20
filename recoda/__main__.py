@@ -34,7 +34,7 @@ def parse_arguments() -> argparse.Namespace:
         type=str,
         help="The Programming language of the Projects.",
         required=True,
-        choices=['python', 'r'],
+        choices=['python'],
     )
     _parser.add_argument(
         '-b',
@@ -52,8 +52,8 @@ def parse_arguments() -> argparse.Namespace:
             "directory will cause the handler to treat every folder in the base dir as project. "
         ),
         required=False,
-        choices=['git', 'directory'],
-        default='directory'
+        choices=['git'],
+        default='git'
     )
     _parser.add_argument(
         '-f',
@@ -179,7 +179,6 @@ class MeasureProjects():
             # Skip project, that are already measured.
             if _current_project_directory in self.projects_to_skip:
                 continue
-            # TODO read existing file, get already measured projects and skip them.
 
             # TODO set up logger
             # A chunk element not only consist of the path to the project

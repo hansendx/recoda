@@ -4,7 +4,6 @@ import os
 import re
 import warnings
 from io import StringIO
-from subprocess import PIPE, Popen
 from typing import Union
 
 import numpy
@@ -51,14 +50,14 @@ def error_density(project_path: str) -> float:
 
 
 def _get_error_density(_file_path: str) -> Union[float, bool]:
-    """ Get standard compliance for a singe file. """
+    """ Get standard compliance for a single file. """
 
     _output_handler = StringIO()
     _error_handler = StringIO()
     _pyflake_reporter = Reporter(_output_handler, _error_handler)
 
 
-    _check_result = checkPath(_file_path, _pyflake_reporter)
+    checkPath(_file_path, _pyflake_reporter)
 
     _error_handler.close()
     _error_handler = None
@@ -74,7 +73,7 @@ def _get_error_density(_file_path: str) -> Union[float, bool]:
         _error_lines = _error_string.strip().split('\n')
         _errors = len(_error_lines)
     else:
-        _errors = 0
+        return float(0)
 
     # Clean up space
     _output_handler.close()
@@ -90,7 +89,7 @@ def _get_error_density(_file_path: str) -> Union[float, bool]:
 
     _line_number = 0
     for _line in _file.readlines():
-        if re.match(r'^\s$', _line):
+        if re.match(r'^\s*$', _line):
             continue
         _line_number = _line_number + 1
 
@@ -102,7 +101,7 @@ def _get_error_density(_file_path: str) -> Union[float, bool]:
     _error_density = float(_errors / _line_number)
     # We have calculated the percentage of non-compliant lines,
     # we want the percentage of the compliant lines.
-    return float(1 - _error_density)
+    return _error_density
 
 def _parse_pylint_output(_pylint_output: str) -> int:
     """ Parse pylint string and count Error messages. """

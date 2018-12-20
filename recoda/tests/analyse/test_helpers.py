@@ -1,9 +1,6 @@
 """ Test the helper functions of the recoda.analyse package. """
 
-import argparse
-import logging
 import os
-import sys
 import shutil
 import tempfile
 import unittest

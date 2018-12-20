@@ -1,18 +1,27 @@
 """ All metrics functions measuring the understandability subfactor. """
 
-import re
 import json
 from subprocess import Popen, PIPE
 
 _APACHE_SNIPPET = 'the Apache License, Version 2.0'
 
 def license_type(project_path: str) -> str:
-    """ Get the license of a project is licensed under if it is an open license. """
+    """ Gets projects license information.
+
+    Call licensee and get the license that
+    a project is licensed under.
+    Licensee only recognizes a set of open source
+    licenses, which also limits theoutput of this license.
+    
+    :param project_path: Path to the root folder of a project.
+    :returns:            Name of the license with the highest
+                         confidence value in the licensee output.
+    """
     _process = Popen(
         [
             "licensee",
             "detect",
-            # This is the default convidence value,
+            # This is the default confidence value,
             # but its value is reiterated here
             # since it is somewhat hidden in the docs.
             "--confidence=98",
@@ -28,7 +37,15 @@ def license_type(project_path: str) -> str:
     return _license
 
 def _get_license(licensee_output: dict) -> str:
-    """ Extract the license with most confidence. """
+    """ Extract the license with most confidence.
+    
+    Parses licensee output for the license it is most
+    confident in.
+
+    :param licensee_output: Parsed json output from licensee
+    :returns:               Name of the license with the highest
+                            confidence value.
+    """
 
     _license = None
     _confidence = 0

@@ -1,4 +1,4 @@
-""" Setup script for the SingularityAutobuild Package."""
+""" Setup script for the Research Code Analysis Package."""
 from setuptools import setup, find_namespace_packages
 
 setup(

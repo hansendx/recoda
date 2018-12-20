@@ -61,7 +61,7 @@ class TestArgumentParser(unittest.TestCase):
         # of length > 0 to avoid an IndexError.
         with patch.object(sys, 'argv', main.__name__):
             with self.assertRaises(SystemExit):
-                _argparser = main.parse_arguments()
+                main.parse_arguments()
 
     def test_repository_type(self):
         """ Can we pass a project type switch -t --project-type? """
@@ -79,7 +79,7 @@ class TestArgumentParser(unittest.TestCase):
         # in the base directory.
         with patch.object(sys, 'argv', _arguments_base):
             _argparser = main.parse_arguments()
-            self.assertEqual(_argparser.project_type, _types['dir'])
+            self.assertEqual(_argparser.project_type, _types['git'])
 
         for _type in _types:
             _arguments = _arguments_base.copy()

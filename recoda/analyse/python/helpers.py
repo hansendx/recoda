@@ -13,6 +13,6 @@ def get_python_files(project_path: str) -> list:
         recursive_flag=True
     )
 
-    _files = [_file for _file in _python_files if os.path.isfile(_file)]
+    _cleaned_files = [_file for _file in _python_files if os.path.isfile(_file)]
 
-    return _python_files
+    return _cleaned_files

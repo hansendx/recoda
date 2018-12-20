@@ -3,12 +3,9 @@
 import os
 import re
 import tokenize
-from subprocess import PIPE, Popen
-from typing import Union
-import warnings
+from io import StringIO
 
 import astroid
-import numpy
 from recoda.analyse.python.helpers import get_python_files
 import pycodestyle
 
@@ -104,7 +101,7 @@ def _get_comment_density(_file_path):
     # Parts of multiline strings, containing only whitespace characters
     # or string delimiter (""") will also be counted as blank lines.
     for line in _file_content:
-        if not re.match(r'^\s*("""){0,1}\s*$', line):
+        if not re.match(r'^\s*(?:(?:\'\'\')|(?:""")){0,1}\s*$', line):
             _lines_of_code = _lines_of_code + 1
         _file_string = _file_string + line
     _file_content.close()
@@ -113,7 +110,6 @@ def _get_comment_density(_file_path):
         # Some script files seem to be incompatible with utf-8
         # We let open() replace problem characters, since we only count lines.
         _astroid_node = astroid.parse(_file_string)
-        _file_string = None
     except (astroid.exceptions.AstroidSyntaxError, AttributeError):
         _file_string = None
         return None
@@ -122,13 +118,9 @@ def _get_comment_density(_file_path):
         _get_docstrings(_astroid_node)
     )
 
-    # tokenize, used to identify # comments,
-    # only uses objects with readline function.
-    # This means we cannot reuse the string already read.
-    if os.path.isfile(_file_path):
-        _single_comments = _get_single_comments(_file_path)
-    else:
-        return None
+    _single_comments = _get_single_comments(_file_string)
+
+    _file_string = None
 
     _commented_lines_of_code = _single_comments + _multiline_comments
 
@@ -136,20 +128,19 @@ def _get_comment_density(_file_path):
         return _commented_lines_of_code / _lines_of_code
     return None
 
-def _get_single_comments(_file_path):
+def _get_single_comments(_file_string):
     """ Uses tokenize to identify # comments and counts their occurrences. """
-    try:
-        _file = open(_file_path, 'r', errors='replace')
-    except FileNotFoundError:
-        return None
+
+    # tokenize needs an object exposing a readline function
+    _io_file_string = StringIO(_file_string)
+
 
     _single_comments = [
         token
         for _token_type, token, _, _, _
-        in tokenize.generate_tokens(_file.readline)
+        in tokenize.generate_tokens(_io_file_string.readline)
         if _token_type == tokenize.COMMENT
     ]
-    _file.close()
     _comment_count = len(_single_comments)
     _single_comments = None
     return _comment_count

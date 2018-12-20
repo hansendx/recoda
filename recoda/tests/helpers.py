@@ -10,7 +10,7 @@ from git import Repo
 
 
 def remove_test_repositories(base_folder: str):
-    """ Remove all files from all subdirectories and then the base folder and its empty children. """
+    """ Recursively remove a directory subtree. """
 
     # The test_base_folder should not already exist.
     if os.path.exists(base_folder):

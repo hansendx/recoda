@@ -208,7 +208,6 @@ class TestInstallability(unittest.TestCase):
             pipreqs.get_all_imports(path=_this_package)
         )
         # The above call to pipreqs always misses GitPython
-        self.import_list.append("GitPython")
         copytree(_this_package, self.test_sandbox+'/recoda')
 
     def test_requirements_from_requirements_file(self):
@@ -243,7 +242,7 @@ class TestInstallability(unittest.TestCase):
         _percentage_of_requirements_declared = (
             float(len(self.import_list) -1) / float(len(self.import_list))
         )
-        self.assertEqual(
+        self.assertAlmostEqual(
             _percentage_of_requirements_declared,
             requirements_declared(self.test_sandbox)
         )
@@ -473,7 +472,7 @@ class TestCorrectness(unittest.TestCase):
         _half_plus_no_error_test = error_density(
             self._tmp_base_folder
         )
-        self.assertEqual(float(0.75), _half_plus_no_error_test)
+        self.assertEqual(float(0.25), _half_plus_no_error_test)
 
 
     def tearDown(self):
